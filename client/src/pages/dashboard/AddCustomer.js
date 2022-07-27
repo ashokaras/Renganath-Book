@@ -1,4 +1,4 @@
-import { FormRow, FormRowSelect, Alert } from "../../components";
+import { FormRow, Alert } from "../../components";
 import { useAppContext } from "../../context/appContext";
 import Wrapper from "../../assets/wrappers/DashboardFormPage";
 
@@ -46,12 +46,14 @@ const AddCustomer = () => {
           <FormRow
             type="text"
             name="name"
+            labelText="Name"
             value={name}
             handleChange={handleCustomerInput}
           />
           <FormRow
             type="number"
             name="phone"
+            labelText="Phone"
             value={phone}
             handleChange={handleCustomerInput}
           />
@@ -65,7 +67,7 @@ const AddCustomer = () => {
           <FormRow
             name="comment"
             type="text"
-            labelText="comment"
+            labelText="Comment"
             value={comment}
             handleChange={handleCustomerInput}
           />

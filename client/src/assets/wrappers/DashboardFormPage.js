@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
 const Wrapper = styled.section`
   border-radius: var(--borderRadius);
@@ -16,6 +16,29 @@ const Wrapper = styled.section`
     padding: 0;
     max-width: 100%;
     width: 100%;
+    .edit-icon {
+      background-color: teal;
+      display: flex;
+      align-content: center;
+      border-radius: 100%;
+      cursor: pointer;
+      padding: 5px;
+      pointer-events: visible;
+      .MuiSvgIcon-root {
+        fill: wheat;
+      }
+    }
+    .delete-icon {
+      background-color: crimson;
+      display: flex;
+      cursor: pointer;
+      align-content: center;
+      border-radius: 100%;
+      padding: 5px;
+      .MuiSvgIcon-root {
+        fill: wheat;
+      }
+    }
   }
   .form-row {
     margin-bottom: 0;
@@ -52,17 +75,40 @@ const Wrapper = styled.section`
       column-gap: 1rem;
     }
     .btn-container {
+      grid-column-start: 1;
+      grid-column-end: 2;
+    }
+    .text-area {
+      grid-column-start: 1;
+      grid-column-end: 3;
+    }
+    .form-center button {
+      height: 50px;
       margin-top: 0;
     }
   }
   @media (min-width: 1120px) {
     .form-center {
       grid-template-columns: 1fr 1fr 1fr;
+      row-gap: 1rem;
+    }
+    .btn-container {
+      grid-column-start: 1;
+      grid-column-end: 2;
+    }
+    .text-area {
+      grid-column-start: 1;
+      grid-column-end: 3;
+    }
+    .table {
+      grid-column-start: 1;
+      grid-column-end: 4;
     }
     .form-center button {
+      height: 50px;
       margin-top: 0;
     }
   }
-`
+`;
 
-export default Wrapper
+export default Wrapper;

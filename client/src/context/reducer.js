@@ -28,6 +28,7 @@ import {
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
+  ADD_BILLING_TABLE_DATA,
   CLEAR_CUSTOMER_FILTERS,
   CHANGE_PAGE,
   CREATE_CUSTOMER_BEGIN,
@@ -148,6 +149,9 @@ const reducer = (state, action) => {
   }
   if (action.type === CREATE_JOB_BEGIN) {
     return { ...state, isLoading: true };
+  }
+  if (action.type === ADD_BILLING_TABLE_DATA) {
+    return { ...state, billingTableData: [...action.payload.billingTableData] };
   }
   if (action.type === CREATE_CUSTOMER_BEGIN) {
     return { ...state, isLoading: true };

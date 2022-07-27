@@ -12,9 +12,17 @@ import SmallSidebar from "./SmallSidebar";
 import StatsContainer from "./StatsContainer";
 import SearchCustomerContainer from "./SearchCustomerContainer";
 import CustomersContainer from "./CustomersContainer";
+import FormRowSelectAutoComplete from "./FormRowSelectAutoComplete";
+import FormRowTextArea from "./FormRowTextArea";
+import FormRowDatePicker from "./FormRowDatePicker";
+import BillingTable from "./BillingTable";
 export {
   Logo,
   SearchCustomerContainer,
+  FormRowSelectAutoComplete,
+  FormRowDatePicker,
+  FormRowTextArea,
+  BillingTable,
   FormRow,
   Alert,
   Navbar,

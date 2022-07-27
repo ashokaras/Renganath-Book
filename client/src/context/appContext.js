@@ -1,4 +1,5 @@
 import React, { useReducer, useContext } from "react";
+import moment from "moment";
 
 import reducer from "./reducer";
 import axios from "axios";
@@ -23,6 +24,7 @@ import {
   CREATE_CUSTOMER_SUCCESS,
   CREATE_CUSTOMER_ERROR,
   GET_JOBS_BEGIN,
+  ADD_BILLING_TABLE_DATA,
   GET_JOBS_SUCCESS,
   GET_CUSTOMERS_BEGIN,
   GET_CUSTOMERS_SUCCESS,
@@ -76,8 +78,13 @@ const initialState = {
   search: "",
   searchStatus: "all",
   searchType: "all",
-  sort: "latest",
-  sortOptions: ["latest", "oldest", "a-z", "z-a"],
+  sort: "Latest",
+  sortOptions: ["Latest", "Oldest", "Ascending", "Descending"],
+  billingOptions: ["Sales", "Purchase", "Recipt", "Payments"],
+  billingType: "",
+  billingComment: "",
+  billingTableData: [],
+  billDate: moment().format("MM/DD/yyyy"),
   name: "",
   phone: "",
   comment: "",
@@ -197,6 +204,22 @@ const AppProvider = ({ children }) => {
 
   const handleChange = ({ name, value }) => {
     dispatch({ type: HANDLE_CHANGE, payload: { name, value } });
+  };
+
+  const createBillingDataObj = (
+    productName,
+    unitsOfMeasurement,
+    quantity,
+    price,
+    total
+  ) => {
+    return { productName, unitsOfMeasurement, quantity, price, total };
+  };
+
+  const addBillingDataRow = (billingTableData) => {
+    const newRow = createBillingDataObj("", "", "", "", "");
+    billingTableData.push(newRow);
+    dispatch({ type: ADD_BILLING_TABLE_DATA, payload: { billingTableData } });
   };
 
   const handleCustomerChange = ({ name, value }) => {
@@ -424,6 +447,7 @@ const AppProvider = ({ children }) => {
         showStats,
         clearFilters,
         changePage,
+        addBillingDataRow,
       }}
     >
       {children}

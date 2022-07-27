@@ -31,18 +31,21 @@ const SearchCustomerContainer = () => {
           <FormRow
             type="text"
             name="name"
+            labelText="Name"
             value={name}
             handleChange={handleSearch}
           />
           <FormRow
             type="number"
             name="phone"
+            labelText="Phone"
             value={phone}
             handleChange={handleSearch}
           />
           <FormRow
             type="text"
             name="city"
+            labelText="City"
             value={city}
             handleChange={handleSearch}
           />
@@ -52,6 +55,7 @@ const SearchCustomerContainer = () => {
 
           {/* sort */}
           <FormRowSelect
+            labelText="Sort"
             name="sort"
             value={sort}
             handleChange={handleSearch}

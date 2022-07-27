@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
 const Wrapper = styled.section`
   .form {
@@ -16,7 +16,7 @@ const Wrapper = styled.section`
   .form-center {
     display: grid;
     grid-template-columns: 1fr;
-    column-gap: 2rem;
+    column-gap: 1rem;
     row-gap: 0.5rem;
   }
   h5 {
@@ -36,9 +36,12 @@ const Wrapper = styled.section`
       grid-template-columns: 1fr 1fr 1fr;
     }
     .btn-block {
-      margin-top: 0;
+      margin-top: 5px;
+      grid-column-start: 1;
+      grid-column-end: 2;
+      height: 50px;
     }
   }
-`
+`;
 
-export default Wrapper
+export default Wrapper;

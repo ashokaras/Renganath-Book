@@ -5,6 +5,7 @@ import SharedLayout from "./SharedLayout";
 import Stats from "./Stats";
 import AddCustomer from "./AddCustomer";
 import EditCustomer from "./EditCustomer";
+import Billing from "./Billing";
 export {
   AllJobs,
   Profile,
@@ -13,4 +14,5 @@ export {
   AddJob,
   AddCustomer,
   EditCustomer,
+  Billing,
 };

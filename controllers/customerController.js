@@ -37,16 +37,16 @@ const getAllCustomers = async (req, res) => {
 
   // chain sort conditions
 
-  if (sort === "latest") {
+  if (sort === "Latest") {
     result = result.sort("-createdAt");
   }
-  if (sort === "oldest") {
+  if (sort === "Oldest") {
     result = result.sort("createdAt");
   }
-  if (sort === "a-z") {
+  if (sort === "Ascending") {
     result = result.sort("name");
   }
-  if (sort === "z-a") {
+  if (sort === "Descending") {
     result = result.sort("-name");
   }
 

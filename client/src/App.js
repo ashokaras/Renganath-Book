@@ -7,6 +7,7 @@ import {
   Stats,
   AddJob,
   AddCustomer,
+  Billing,
   EditCustomer,
 } from "./pages/dashboard";
 
@@ -24,6 +25,7 @@ function App() {
         >
           <Route index element={<Stats />} />
           <Route path="all-jobs" element={<AllJobs />} />
+          <Route path="billing" element={<Billing />} />
           <Route path="add-job" element={<AddJob />} />
           <Route path="add-customer" element={<AddCustomer />} />
           <Route path="edit-customer" element={<EditCustomer />} />
