@@ -13,6 +13,17 @@ const Wrapper = styled.section`
   .form-row {
     margin-bottom: 0;
   }
+  .btn-container {
+    display: flex;
+    margin-top: 5px;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    column-gap: 10px;
+
+    button {
+      height: 50px;
+    }
+  }
   .form-center {
     display: grid;
     grid-template-columns: 1fr;
@@ -35,11 +46,16 @@ const Wrapper = styled.section`
     .form-center {
       grid-template-columns: 1fr 1fr 1fr;
     }
-    .btn-block {
+    .btn-container {
+      display: flex;
       margin-top: 5px;
       grid-column-start: 1;
       grid-column-end: 2;
-      height: 50px;
+      column-gap: 10px;
+      margin-top: 10px;
+      button {
+        height: 50px;
+      }
     }
   }
 `;

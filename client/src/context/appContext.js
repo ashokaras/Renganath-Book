@@ -1,6 +1,6 @@
 import React, { useReducer, useContext } from "react";
 import moment from "moment";
-
+import { nanoid } from "nanoid";
 import reducer from "./reducer";
 import axios from "axios";
 import {
@@ -23,6 +23,9 @@ import {
   CREATE_CUSTOMER_BEGIN,
   CREATE_CUSTOMER_SUCCESS,
   CREATE_CUSTOMER_ERROR,
+  CREATE_BILL_BEGIN,
+  CREATE_BILL_SUCCESS,
+  CREATE_BILL_ERROR,
   GET_JOBS_BEGIN,
   ADD_BILLING_TABLE_DATA,
   GET_JOBS_SUCCESS,
@@ -41,8 +44,10 @@ import {
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_CUSTOMER_FILTERS,
+  UPDATE_BILLING_TABLE_DATA,
   CLEAR_FILTERS,
   CHANGE_PAGE,
+  HANDLE_SUBMIT_SEARCH,
 } from "./actions";
 
 const token = localStorage.getItem("token");
@@ -89,6 +94,7 @@ const initialState = {
   phone: "",
   comment: "",
   city: "",
+  searchSubmit: false,
 };
 
 const AppContext = React.createContext();
@@ -135,6 +141,10 @@ const AppProvider = ({ children }) => {
     setTimeout(() => {
       dispatch({ type: CLEAR_ALERT });
     }, 3000);
+  };
+
+  const handleSubmitSearch = () => {
+    dispatch({ type: HANDLE_SUBMIT_SEARCH });
   };
 
   const addUserToLocalStorage = ({ user, token, location }) => {
@@ -213,7 +223,14 @@ const AppProvider = ({ children }) => {
     price,
     total
   ) => {
-    return { productName, unitsOfMeasurement, quantity, price, total };
+    return {
+      id: nanoid(),
+      productName,
+      unitsOfMeasurement,
+      quantity,
+      price,
+      total,
+    };
   };
 
   const addBillingDataRow = (billingTableData) => {
@@ -274,6 +291,35 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const createBill = async () => {
+    dispatch({ type: CREATE_BILL_BEGIN });
+    try {
+      const {
+        billDate,
+        billedCustomer,
+        billingComment,
+        billingTableData,
+        billingType,
+      } = state;
+      await authFetch.post("/billings", {
+        billDate,
+        billedCustomer,
+        billingComment,
+        billingTableData,
+        billingType,
+      });
+      dispatch({ type: CREATE_BILL_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      dispatch({
+        type: CREATE_BILL_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
   const getJobs = async () => {
     const { page, search, searchStatus, searchType, sort } = state;
     console.log("Search is ", search);
@@ -302,7 +348,7 @@ const AppProvider = ({ children }) => {
 
   const getCustomers = async () => {
     const { name, phone, city, sort, page } = state;
-    console.log("Search cust is ", phone || name || city);
+    console.log("Search cust is ", phone);
 
     let url = `/customers?sort=${sort}&page=${page}`;
     if (phone || name || city) {
@@ -421,6 +467,40 @@ const AppProvider = ({ children }) => {
   const changePage = (page) => {
     dispatch({ type: CHANGE_PAGE, payload: { page } });
   };
+  const handleDeleteRowBillingData = (id) => {
+    console.log("billing handleDeleteRow", id);
+    const newBillingTableData = state.billingTableData.filter(
+      (billingTableData) => {
+        return id !== billingTableData.id;
+      }
+    );
+    dispatch({
+      type: UPDATE_BILLING_TABLE_DATA,
+      payload: { newBillingTableData },
+    });
+  };
+
+  const handleSaveRowBillingData = (id, formData, setEditBillingId) => {
+    console.log("billing1 handleSaveRowBillingData", id);
+    console.log("billing1 formData", formData);
+
+    const newBillingTableData = state.billingTableData.map(
+      (billingTableData) => {
+        let newFormData = { ...billingTableData };
+        if (id === newFormData.id) {
+          newFormData = { ...formData };
+        }
+        return newFormData;
+      }
+    );
+    console.log("billing1 ", newBillingTableData);
+    dispatch({
+      type: UPDATE_BILLING_TABLE_DATA,
+      payload: { newBillingTableData },
+    });
+    setEditBillingId(null);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -448,6 +528,10 @@ const AppProvider = ({ children }) => {
         clearFilters,
         changePage,
         addBillingDataRow,
+        handleDeleteRowBillingData,
+        handleSaveRowBillingData,
+        createBill,
+        handleSubmitSearch,
       }}
     >
       {children}

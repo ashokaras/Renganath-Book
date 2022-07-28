@@ -16,6 +16,9 @@ import {
   CREATE_JOB_BEGIN,
   CREATE_JOB_SUCCESS,
   CREATE_JOB_ERROR,
+  CREATE_BILL_BEGIN,
+  CREATE_BILL_SUCCESS,
+  CREATE_BILL_ERROR,
   GET_JOBS_BEGIN,
   GET_JOBS_SUCCESS,
   SET_EDIT_JOB,
@@ -37,8 +40,10 @@ import {
   EDIT_CUSTOMER_BEGIN,
   EDIT_CUSTOMER_SUCCESS,
   EDIT_CUSTOMER_ERROR,
+  UPDATE_BILLING_TABLE_DATA,
+  HANDLE_SUBMIT_SEARCH,
 } from "./actions";
-
+import moment from "moment";
 import { initialState } from "./appContext";
 
 const reducer = (state, action) => {
@@ -131,6 +136,12 @@ const reducer = (state, action) => {
       [action.payload.name]: action.payload.value,
     };
   }
+  if (action.type === HANDLE_SUBMIT_SEARCH) {
+    return {
+      ...state,
+      searchSubmit: !state.searchSubmit,
+    };
+  }
   if (action.type === CLEAR_VALUES) {
     const initialState = {
       isEditing: false,
@@ -140,6 +151,11 @@ const reducer = (state, action) => {
       jobLocation: state.userLocation,
       jobType: "full-time",
       status: "pending",
+      billingType: "",
+      billingComment: "",
+      billingTableData: [],
+      billDate: moment().format("MM/DD/yyyy"),
+      billedCustomer: "",
     };
 
     return {
@@ -153,7 +169,18 @@ const reducer = (state, action) => {
   if (action.type === ADD_BILLING_TABLE_DATA) {
     return { ...state, billingTableData: [...action.payload.billingTableData] };
   }
+  if (action.type === UPDATE_BILLING_TABLE_DATA) {
+    console.log("action.payload.newBillingTableData", action.payload);
+    return {
+      ...state,
+      billingTableData: [...action.payload.newBillingTableData],
+    };
+  }
   if (action.type === CREATE_CUSTOMER_BEGIN) {
+    return { ...state, isLoading: true };
+  }
+
+  if (action.type === CREATE_BILL_BEGIN) {
     return { ...state, isLoading: true };
   }
 
@@ -175,6 +202,17 @@ const reducer = (state, action) => {
       alertText: "New Customer Created!",
     };
   }
+
+  if (action.type === CREATE_BILL_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "success",
+      alertText: "New Bill Created!",
+    };
+  }
+
   if (action.type === CREATE_JOB_ERROR) {
     return {
       ...state,
@@ -193,6 +231,17 @@ const reducer = (state, action) => {
       alertText: action.payload.msg,
     };
   }
+
+  if (action.type === CREATE_BILL_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
+
   if (action.type === GET_JOBS_BEGIN) {
     return { ...state, isLoading: true, showAlert: false };
   }
@@ -331,6 +380,7 @@ const reducer = (state, action) => {
       phone: "",
       city: "",
       sort: "latest",
+      searchSubmit: !state.searchSubmit,
     };
   }
   if (action.type === CHANGE_PAGE) {

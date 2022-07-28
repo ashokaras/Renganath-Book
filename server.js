@@ -21,6 +21,7 @@ import connectDB from "./db/connect.js";
 import authRouter from "./routes/authRoutes.js";
 import jobsRouter from "./routes/jobsRoutes.js";
 import customerRouter from "./routes/customerRoutes.js";
+import billingRouter from "./routes/billingRoutes.js";
 
 // middleware
 import notFoundMiddleware from "./middleware/not-found.js";
@@ -44,6 +45,7 @@ app.use(mongoSanitize());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/jobs", authenticateUser, jobsRouter);
 app.use("/api/v1/customers", authenticateUser, customerRouter);
+app.use("/api/v1/billings", authenticateUser, billingRouter);
 
 // only when ready to deploy
 // app.get('*', (req, res) => {

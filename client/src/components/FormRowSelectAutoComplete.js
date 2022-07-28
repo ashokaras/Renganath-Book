@@ -13,8 +13,14 @@ const Wrapper = styled.div`
   }
 `;
 
-const FormRowSelectAutoComplete = ({ labelText, name, handleChange, list }) => {
-  console.log("FormRowSelectAutoComplete", list);
+const FormRowSelectAutoComplete = ({
+  labelText,
+  name,
+  handleChange,
+  list,
+  billedCustomer,
+}) => {
+  console.log("FormRowSelectAutoComplete", billedCustomer);
   return (
     <Wrapper>
       <div className="form-row">
@@ -23,7 +29,9 @@ const FormRowSelectAutoComplete = ({ labelText, name, handleChange, list }) => {
           className="auto-select"
           onChange={(event, newValue) => handleChange(newValue)}
           name={name}
+          value={billedCustomer || null}
           options={list}
+          defaultValue={null}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderInput={(params) => <TextField {...params} label={labelText} />}
         />

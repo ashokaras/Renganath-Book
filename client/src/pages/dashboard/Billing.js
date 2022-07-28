@@ -22,11 +22,15 @@ const Billing = () => {
     customers,
     getCustomers,
     billedCustomer,
+    clearValues,
     billingOptions,
     billingType,
     billDate,
     billingTableData,
     addBillingDataRow,
+    handleDeleteRowBillingData,
+    handleSaveRowBillingData,
+    createBill,
   } = useAppContext();
 
   useEffect(() => {
@@ -40,12 +44,22 @@ const Billing = () => {
       })) ||
     [];
 
-  const handleSubmit = () => {
-    console.log("handle submit");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Handle Submit", billDate);
+    console.log("Handle Submit", billedCustomer);
+
+    console.log("Handle Submit", billingType);
+
+    if (!billDate || !billedCustomer || !billingType) {
+      displayAlert();
+      return;
+    }
+    createBill();
   };
 
   const handleSearch = (newValue) => {
-    handleChange({ name: "billedCustomer", value: newValue.label });
+    handleChange({ name: "billedCustomer", value: newValue });
   };
 
   const handleBillDate = (newValue) => {
@@ -61,16 +75,18 @@ const Billing = () => {
 
   const phoneArray =
     customers &&
+    billedCustomer &&
     customers.filter((customer) => {
-      return customer.name === billedCustomer;
+      return customer.name === billedCustomer.label;
     });
 
   const phone = phoneArray && phoneArray[0] && phoneArray[0]["phone"];
 
   const cityArray =
     customers &&
+    billedCustomer &&
     customers.filter((customer) => {
-      return customer.name === billedCustomer;
+      return customer.name === billedCustomer.label;
     });
 
   const city = cityArray && cityArray[0] && cityArray[0]["city"];
@@ -92,6 +108,7 @@ const Billing = () => {
                 name="billedCustomer"
                 handleChange={handleSearch}
                 list={customerList}
+                billedCustomer={billedCustomer}
               />
               <FormRow
                 type="text"
@@ -133,6 +150,8 @@ const Billing = () => {
                 <BillingTable
                   billingTableData={billingTableData}
                   addBillingDataRow={addBillingDataRow}
+                  handleDeleteRowBillingData={handleDeleteRowBillingData}
+                  handleSaveRowBillingData={handleSaveRowBillingData}
                 />
               </div>
 
@@ -150,6 +169,7 @@ const Billing = () => {
                   className="btn btn-block clear-btn"
                   onClick={(e) => {
                     e.preventDefault();
+                    clearValues();
                   }}
                 >
                   clear

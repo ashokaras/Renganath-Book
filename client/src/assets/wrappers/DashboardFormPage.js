@@ -28,6 +28,16 @@ const Wrapper = styled.section`
         fill: wheat;
       }
     }
+    .edit-icon:hover {
+      background-color: darkblue;
+    }
+    .edit-icon:active,
+    .delete-icon:active {
+      transform: translatey(0.175rem);
+    }
+    .delete-icon:hover {
+      background-color: red;
+    }
     .delete-icon {
       background-color: crimson;
       display: flex;
@@ -38,6 +48,9 @@ const Wrapper = styled.section`
       .MuiSvgIcon-root {
         fill: wheat;
       }
+    }
+    .table {
+      overflow: auto;
     }
   }
   .form-row {

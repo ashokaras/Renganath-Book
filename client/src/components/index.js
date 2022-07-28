@@ -16,6 +16,7 @@ import FormRowSelectAutoComplete from "./FormRowSelectAutoComplete";
 import FormRowTextArea from "./FormRowTextArea";
 import FormRowDatePicker from "./FormRowDatePicker";
 import BillingTable from "./BillingTable";
+import SearchBillContainer from "./SearchBillContainer";
 export {
   Logo,
   SearchCustomerContainer,
@@ -34,5 +35,6 @@ export {
   JobsContainer,
   StatsContainer,
   ChartsContainer,
+  SearchBillContainer,
   Loading,
 };

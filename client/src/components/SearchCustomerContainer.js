@@ -12,11 +12,18 @@ const SearchCustomerContainer = () => {
     sortOptions,
     handleChange,
     clearCustomerFilters,
+    handleSubmitSearch,
   } = useAppContext();
   const handleSearch = (e) => {
     if (isLoading) return;
     handleChange({ name: e.target.name, value: e.target.value });
   };
+
+  const handleSubmitCustomerSearch = (e) => {
+    e.preventDefault();
+    handleSubmitSearch();
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     clearCustomerFilters();
@@ -61,13 +68,22 @@ const SearchCustomerContainer = () => {
             handleChange={handleSearch}
             list={sortOptions}
           />
-          <button
-            className="btn btn-block btn-danger"
-            disabled={isLoading}
-            onClick={handleSubmit}
-          >
-            clear filters
-          </button>
+          <div className="btn-container">
+            <button
+              className="btn submit-btn"
+              disabled={isLoading}
+              onClick={handleSubmitCustomerSearch}
+            >
+              Submit
+            </button>
+            <button
+              className="btn btn-danger"
+              disabled={isLoading}
+              onClick={handleSubmit}
+            >
+              clear filters
+            </button>
+          </div>
         </div>
       </form>
     </Wrapper>

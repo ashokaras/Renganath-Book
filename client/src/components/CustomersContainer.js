@@ -17,12 +17,13 @@ const CustomersContainer = () => {
     search,
     customers,
     getCustomers,
+    searchSubmit,
   } = useAppContext();
 
   useEffect(() => {
     getCustomers();
     // eslint-disable-next-line
-  }, [name, phone, sort, city, search]);
+  }, [searchSubmit]);
   if (isLoading) {
     return <Loading center />;
   }
