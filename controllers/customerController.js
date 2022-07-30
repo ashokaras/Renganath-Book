@@ -23,7 +23,7 @@ const getAllCustomers = async (req, res) => {
   // add stuff based on condition
 
   if (phone) {
-    queryObject.phone = phone;
+    queryObject.phone = { $regex: phone, $options: "i" };
   }
   if (city) {
     queryObject.city = { $regex: city, $options: "i" };
@@ -54,7 +54,7 @@ const getAllCustomers = async (req, res) => {
 
   // setup pagination
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const limit = Number(req.query.limit) || 25;
   const skip = (page - 1) * limit;
 
   result = result.skip(skip).limit(limit);

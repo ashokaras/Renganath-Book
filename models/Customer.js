@@ -9,7 +9,7 @@ const CustomerSchema = new mongoose.Schema(
       unique: true,
     },
     phone: {
-      type: Number,
+      type: String,
       required: [true, "Please provide Phone Number"],
       unique: true,
     },

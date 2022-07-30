@@ -17,6 +17,7 @@ import FormRowTextArea from "./FormRowTextArea";
 import FormRowDatePicker from "./FormRowDatePicker";
 import BillingTable from "./BillingTable";
 import SearchBillContainer from "./SearchBillContainer";
+import BillsViewContainer from "./BillsViewContainer";
 export {
   Logo,
   SearchCustomerContainer,
@@ -37,4 +38,5 @@ export {
   ChartsContainer,
   SearchBillContainer,
   Loading,
+  BillsViewContainer,
 };

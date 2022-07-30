@@ -1,10 +1,10 @@
-import { CustomersContainer, SearchBillContainer } from "../../components";
+import { BillsViewContainer, SearchBillContainer } from "../../components";
 
 const EditBill = () => {
   return (
     <>
       <SearchBillContainer />
-      {/* <CustomersContainer /> */}
+      <BillsViewContainer />
     </>
   );
 };

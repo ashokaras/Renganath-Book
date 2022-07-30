@@ -1,6 +1,8 @@
 import {
   GET_CUSTOMERS_BEGIN,
   GET_CUSTOMERS_SUCCESS,
+  GET_BILLS_BEGIN,
+  GET_BILLS_SUCCESS,
   DISPLAY_ALERT,
   CLEAR_ALERT,
   SETUP_USER_BEGIN,
@@ -156,6 +158,11 @@ const reducer = (state, action) => {
       billingTableData: [],
       billDate: moment().format("MM/DD/yyyy"),
       billedCustomer: "",
+      customers: [],
+      phone: "",
+      city: "",
+      comment: "",
+      name: "",
     };
 
     return {
@@ -248,6 +255,9 @@ const reducer = (state, action) => {
   if (action.type === GET_CUSTOMERS_BEGIN) {
     return { ...state, isLoading: true, showAlert: false };
   }
+  if (action.type === GET_BILLS_BEGIN) {
+    return { ...state, isLoading: true, showAlert: false };
+  }
   if (action.type === GET_JOBS_SUCCESS) {
     return {
       ...state,
@@ -264,6 +274,14 @@ const reducer = (state, action) => {
       customers: action.payload.customers,
       totalCustomers: action.payload.totalCustomers,
       numOfPages: action.payload.numOfPages,
+    };
+  }
+  if (action.type === GET_BILLS_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      bills: action.payload.bills,
+      totalBills: action.payload.totalBills,
     };
   }
   if (action.type === SET_EDIT_JOB) {
@@ -381,6 +399,8 @@ const reducer = (state, action) => {
       city: "",
       sort: "latest",
       searchSubmit: !state.searchSubmit,
+      fromDate: moment().format("MM/DD/yyyy"),
+      toDate: moment().format("MM/DD/yyyy"),
     };
   }
   if (action.type === CHANGE_PAGE) {

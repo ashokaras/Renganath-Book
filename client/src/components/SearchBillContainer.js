@@ -1,22 +1,29 @@
-import { FormRow, FormRowSelect, FormRowSelectAutoComplete } from ".";
+import {
+  FormRow,
+  FormRowSelect,
+  FormRowSelectAutoComplete,
+  FormRowDatePicker,
+} from ".";
 import { useAppContext } from "../context/appContext";
 import Wrapper from "../assets/wrappers/SearchContainer";
-import Loading from "../components/Loading";
+import { Loading } from "../components";
 import React, { useEffect } from "react";
+import moment from "moment";
 
 const SearchBillContainer = () => {
   const {
     isLoading,
-    name,
-    phone,
-    city,
     sort,
     sortOptions,
     handleChange,
     clearCustomerFilters,
-    getCustomers,
+    handleSubmitSearch,
     customers,
+    getCustomers,
     billedCustomer,
+    billingOptions,
+    fromDate,
+    toDate,
   } = useAppContext();
 
   useEffect(() => {
@@ -30,12 +37,30 @@ const SearchBillContainer = () => {
       })) ||
     [];
 
-  const handleSearch = (e) => {
-    handleChange({ name: e.target.name, value: e.target.value });
-  };
   const handleCustomerSearch = (newValue) => {
     handleChange({ name: "billedCustomer", value: newValue });
   };
+
+  const handleSearch = (e) => {
+    if (isLoading) return;
+    handleChange({ name: e.target.name, value: e.target.value });
+  };
+
+  const handleFromDate = (newValue) => {
+    const newDate = moment(newValue).format("MM/DD/yyyy");
+    handleChange({ name: "fromDate", value: newDate });
+  };
+
+  const handleToDate = (newValue) => {
+    const newDate = moment(newValue).format("MM/DD/yyyy");
+    handleChange({ name: "toDate", value: newDate });
+  };
+
+  const handleSubmitBillSearch = (e) => {
+    e.preventDefault();
+    handleSubmitSearch();
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     clearCustomerFilters();
@@ -46,9 +71,8 @@ const SearchBillContainer = () => {
         <Loading center />
       ) : (
         <form className="form">
-          <h4>search form</h4>
+          <h4>search Bill</h4>
           <div className="form-center">
-            {/* search position */}
             <FormRowSelectAutoComplete
               labelText="Customer"
               name="billedCustomer"
@@ -57,31 +81,23 @@ const SearchBillContainer = () => {
               billedCustomer={billedCustomer}
             />
             <FormRow
-              type="text"
-              name="name"
-              labelText="Name"
-              value={name}
-              handleChange={handleSearch}
-            />
-            <FormRow
               type="number"
               name="phone"
               labelText="Phone"
-              value={phone}
               handleChange={handleSearch}
             />
             <FormRow
               type="text"
               name="city"
               labelText="City"
-              value={city}
               handleChange={handleSearch}
             />
-            {/* search by status */}
-
-            {/* search by type */}
-
-            {/* sort */}
+            <FormRowSelect
+              labelText="Billing Type"
+              name="billingType"
+              handleChange={handleSearch}
+              list={billingOptions}
+            />
             <FormRowSelect
               labelText="Sort"
               name="sort"
@@ -89,13 +105,34 @@ const SearchBillContainer = () => {
               handleChange={handleSearch}
               list={sortOptions}
             />
-            <button
-              className="btn btn-block btn-danger"
-              disabled={isLoading}
-              onClick={handleSubmit}
-            >
-              clear filters
-            </button>
+            <FormRowDatePicker
+              name="fromDate"
+              labelText="From Date"
+              value={fromDate}
+              handleChange={handleFromDate}
+            />
+            <FormRowDatePicker
+              name="toDate"
+              labelText="To Date"
+              value={toDate}
+              handleChange={handleToDate}
+            />
+            <div className="btn-container">
+              <button
+                className="btn submit-btn"
+                disabled={isLoading}
+                onClick={handleSubmitBillSearch}
+              >
+                Submit
+              </button>
+              <button
+                className="btn btn-danger"
+                disabled={isLoading}
+                onClick={handleSubmit}
+              >
+                clear filters
+              </button>
+            </div>
           </div>
         </form>
       )}

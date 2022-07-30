@@ -28,7 +28,7 @@ const Wrapper = styled.section`
     display: grid;
     grid-template-columns: 1fr;
     column-gap: 1rem;
-    row-gap: 0.5rem;
+    row-gap: 1rem;
   }
   h5 {
     font-weight: 700;
@@ -55,6 +55,7 @@ const Wrapper = styled.section`
       margin-top: 10px;
       button {
         height: 50px;
+        width: 100%;
       }
     }
   }

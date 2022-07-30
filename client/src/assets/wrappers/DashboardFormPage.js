@@ -52,6 +52,56 @@ const Wrapper = styled.section`
     .table {
       overflow: auto;
     }
+    .total-sum {
+      display: flex;
+      .card-content {
+        width: 100%;
+      }
+      .charges {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+    .charge-label {
+      background-color: #cffafe;
+      border-radius: 8px;
+      padding: 10px 30px;
+
+      align-items: center;
+      display: flex;
+    }
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      row-gap: 10px;
+    }
+
+    .charge-amount {
+      border-radius: 8px;
+      align-items: center;
+      img {
+        height: 15px;
+        margin-right: 5px;
+      }
+      input {
+        border: 0px;
+        background-color: #f3f4f6;
+        height: 100%;
+        padding: 10px 30px;
+        width: 85px;
+        border-radius: 8px;
+        padding: 10px;
+        -moz-appearance: textfield;
+      }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input:focus {
+        outline-color: #757ce8;
+      }
+    }
   }
   .form-row {
     margin-bottom: 0;
@@ -98,6 +148,10 @@ const Wrapper = styled.section`
     .form-center button {
       height: 50px;
       margin-top: 0;
+    }
+    .table {
+      grid-column-start: 1;
+      grid-column-end: 4;
     }
   }
   @media (min-width: 1120px) {

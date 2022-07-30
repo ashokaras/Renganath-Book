@@ -11,6 +11,10 @@ import { useAppContext } from "../../context/appContext";
 import { Loading } from "../../components/";
 import Wrapper from "../../assets/wrappers/DashboardFormPage";
 import { useEffect } from "react";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import rupeeicon from "../../assets/images/rupeeicon.svg";
+
 import moment from "moment";
 
 const Billing = () => {
@@ -31,6 +35,8 @@ const Billing = () => {
     handleDeleteRowBillingData,
     handleSaveRowBillingData,
     createBill,
+    billDiscount,
+    gstCharge,
   } = useAppContext();
 
   useEffect(() => {
@@ -44,18 +50,17 @@ const Billing = () => {
       })) ||
     [];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e, phone, city) => {
     e.preventDefault();
-    console.log("Handle Submit", billDate);
-    console.log("Handle Submit", billedCustomer);
-
-    console.log("Handle Submit", billingType);
-
     if (!billDate || !billedCustomer || !billingType) {
       displayAlert();
       return;
     }
-    createBill();
+    createBill(phone, city);
+  };
+
+  const handleBillingFormSubmit = (e, phone, city) => {
+    handleSubmit(e, phone, city);
   };
 
   const handleSearch = (newValue) => {
@@ -68,7 +73,7 @@ const Billing = () => {
   };
 
   const handleBillingForm = (e) => {
-    console.log("Billing type", e.target);
+    console.log("Billing form", e.target);
     if (isLoading) return;
     handleChange({ name: e.target.name, value: e.target.value });
   };
@@ -91,8 +96,19 @@ const Billing = () => {
 
   const city = cityArray && cityArray[0] && cityArray[0]["city"];
 
-  console.log("Bill date is ", billDate);
+  const calculateTotal = () => {
+    console.log("calculateTotal", billingTableData);
+    let tableTotal =
+      billingTableData &&
+      billingTableData
+        .map((element) => {
+          return parseFloat(element.total);
+        })
+        .reduce((partialSum, element) => partialSum + element, 0);
+    return tableTotal + parseFloat(gstCharge) - parseFloat(billDiscount);
+  };
 
+  let grandTotal = calculateTotal();
   return (
     <Wrapper>
       <>
@@ -114,6 +130,7 @@ const Billing = () => {
                 type="text"
                 name="phone"
                 labelText="Phone"
+                handleChange={handleBillingForm}
                 value={phone || ""}
                 disabled
               />
@@ -121,6 +138,7 @@ const Billing = () => {
                 type="text"
                 name="city"
                 labelText="City"
+                handleChange={handleBillingForm}
                 value={city || ""}
                 disabled
               />
@@ -155,12 +173,53 @@ const Billing = () => {
                 />
               </div>
 
+              <div>
+                <Card sx={{ minHeight: 150 }} className="total-sum">
+                  <CardContent className="card-content">
+                    <div className="charges">
+                      <div className="charge-label">Discount:</div>
+                      <div className="charge-amount">
+                        <img src={rupeeicon} />
+                        <input
+                          type="number"
+                          name="billDiscount"
+                          onChange={handleBillingForm}
+                        />
+                      </div>
+                    </div>
+                    <div className="charges">
+                      <div className="charge-label">GST:</div>
+                      <div className="charge-amount">
+                        <img src={rupeeicon} />
+                        <input
+                          type="number"
+                          name="gstCharge"
+                          onChange={handleBillingForm}
+                        />
+                      </div>
+                    </div>
+                    <div className="charges">
+                      <div className="charge-label">Grand Total:</div>
+                      <div className="charge-amount">
+                        <img src={rupeeicon} />
+                        <input
+                          type="number"
+                          name="billTotal"
+                          value={grandTotal || 0}
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
               {/* btn container */}
               <div className="btn-container">
                 <button
                   type="submit"
                   className="btn btn-block submit-btn"
-                  onClick={handleSubmit}
+                  onClick={(e) => handleBillingFormSubmit(e, phone, city)}
                   disabled={isLoading}
                 >
                   submit

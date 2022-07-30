@@ -1,6 +1,7 @@
 import { FormRow, Alert } from "../../components";
 import { useAppContext } from "../../context/appContext";
 import Wrapper from "../../assets/wrappers/DashboardFormPage";
+import { useEffect } from "react";
 
 const AddCustomer = () => {
   const {
@@ -17,6 +18,12 @@ const AddCustomer = () => {
     createCustomer,
     editCustomer,
   } = useAppContext();
+
+  useEffect(() => {
+    return () => {
+      clearValues();
+    };
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -2,10 +2,26 @@ import mongoose from "mongoose";
 
 const BillSchema = new mongoose.Schema(
   {
-    customerId: {
-      type: mongoose.Types.ObjectId,
-      ref: "Customer",
+    customerName: {
+      type: String,
       required: [true, "Please select a valid Customer"],
+    },
+    gstCharge: {
+      type: Number,
+    },
+    billDiscount: {
+      type: Number,
+    },
+    grandTotal: {
+      type: Number,
+    },
+    phone: {
+      type: String,
+      required: [true, "Please provide a phone number"],
+    },
+    city: {
+      type: String,
+      required: [true, "Please provide City"],
     },
     billDate: {
       type: Date,

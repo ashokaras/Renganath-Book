@@ -25,10 +25,8 @@ function App() {
           }
         >
           <Route index element={<Stats />} />
-          <Route path="all-jobs" element={<AllJobs />} />
           <Route path="billing" element={<Billing />} />
           <Route path="edit-bill" element={<EditBill />} />
-          <Route path="add-job" element={<AddJob />} />
           <Route path="add-customer" element={<AddCustomer />} />
           <Route path="edit-customer" element={<EditCustomer />} />
           <Route path="profile" element={<Profile />} />

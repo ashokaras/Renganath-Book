@@ -14,7 +14,7 @@ const CustomersContainer = () => {
     city,
     sort,
     numOfPages,
-    search,
+    page,
     customers,
     getCustomers,
     searchSubmit,
@@ -23,7 +23,7 @@ const CustomersContainer = () => {
   useEffect(() => {
     getCustomers();
     // eslint-disable-next-line
-  }, [searchSubmit]);
+  }, [searchSubmit, page]);
   if (isLoading) {
     return <Loading center />;
   }

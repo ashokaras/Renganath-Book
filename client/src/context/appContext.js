@@ -48,6 +48,8 @@ import {
   CLEAR_FILTERS,
   CHANGE_PAGE,
   HANDLE_SUBMIT_SEARCH,
+  GET_BILLS_BEGIN,
+  GET_BILLS_SUCCESS,
 } from "./actions";
 
 const token = localStorage.getItem("token");
@@ -95,6 +97,11 @@ const initialState = {
   comment: "",
   city: "",
   searchSubmit: false,
+  fromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
+  toDate: moment().format("MM/DD/yyyy"),
+  gstCharge: 0,
+  billDiscount: 0,
+  bills: [],
 };
 
 const AppContext = React.createContext();
@@ -234,7 +241,7 @@ const AppProvider = ({ children }) => {
   };
 
   const addBillingDataRow = (billingTableData) => {
-    const newRow = createBillingDataObj("", "", "", "", "");
+    const newRow = createBillingDataObj("", "", "0", "0", "0");
     billingTableData.push(newRow);
     dispatch({ type: ADD_BILLING_TABLE_DATA, payload: { billingTableData } });
   };
@@ -291,7 +298,7 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  const createBill = async () => {
+  const createBill = async (phone, city) => {
     dispatch({ type: CREATE_BILL_BEGIN });
     try {
       const {
@@ -300,13 +307,34 @@ const AppProvider = ({ children }) => {
         billingComment,
         billingTableData,
         billingType,
+        gstCharge,
+        billDiscount,
       } = state;
+
+      const calculateTotal = () => {
+        let tableTotal =
+          billingTableData &&
+          billingTableData
+            .map((element) => {
+              return parseFloat(element.total);
+            })
+            .reduce((partialSum, element) => partialSum + element, 0);
+        return tableTotal + parseFloat(gstCharge) - parseFloat(billDiscount);
+      };
+
+      let grandTotal = calculateTotal();
+
       await authFetch.post("/billings", {
         billDate,
         billedCustomer,
         billingComment,
         billingTableData,
         billingType,
+        phone,
+        city,
+        gstCharge,
+        billDiscount,
+        grandTotal,
       });
       dispatch({ type: CREATE_BILL_SUCCESS });
       dispatch({ type: CLEAR_VALUES });
@@ -365,6 +393,35 @@ const AppProvider = ({ children }) => {
           customers,
           totalCustomers,
           numOfPages,
+        },
+      });
+    } catch (error) {
+      logoutUser();
+    }
+    clearAlert();
+  };
+
+  const getBills = async () => {
+    const { billedCustomer, phone, city, sort, billingType, fromDate, toDate } =
+      state;
+    const customerName = billedCustomer && billedCustomer.label;
+
+    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}`;
+    if (phone || customerName || city || billingType) {
+      url =
+        url +
+        `&billedCustomer=${customerName}&phone=${phone}&city=${city}&billingType=${billingType}`;
+    }
+    dispatch({ type: GET_BILLS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      console.log(data);
+      const { bills, totalBills } = data;
+      dispatch({
+        type: GET_BILLS_SUCCESS,
+        payload: {
+          bills,
+          totalBills,
         },
       });
     } catch (error) {
@@ -532,6 +589,7 @@ const AppProvider = ({ children }) => {
         handleSaveRowBillingData,
         createBill,
         handleSubmitSearch,
+        getBills,
       }}
     >
       {children}

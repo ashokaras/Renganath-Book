@@ -7,20 +7,30 @@ import checkPermissions from "../utils/checkPermissions.js";
 
 const createBilling = async (req, res) => {
   const {
-    billedCustomer,
     billDate,
-    billingType,
+    billedCustomer,
     billingComment,
     billingTableData,
+    billingType,
+    phone,
+    city,
+    gstCharge,
+    billDiscount,
+    grandTotal,
   } = req.body;
 
   const billObj = {
     createdBy: req.user.userId,
-    customerId: billedCustomer && billedCustomer.id,
+    customerName: billedCustomer && billedCustomer.label,
     billDate: billDate,
     billType: billingType,
     comment: billingComment,
     billingTableData: billingTableData,
+    phone: phone,
+    city: city,
+    grandTotal,
+    billDiscount,
+    gstCharge,
   };
   console.log("Request Body", req.body);
   req.body.createdBy = req.user.userId;
@@ -29,25 +39,44 @@ const createBilling = async (req, res) => {
 };
 
 const getAllBillings = async (req, res) => {
-  const { sort, name, phone, city } = req.query;
+  const { billedCustomer, city, phone, billingType, fromDate, toDate, sort } =
+    req.query;
 
+  const billObj = {
+    createdBy: req.user.userId,
+    customerName: billedCustomer,
+    fromDate: fromDate,
+    toDate: toDate,
+    billType: billingType,
+    phone: phone,
+    city: city,
+  };
   const queryObject = {
     createdBy: req.user.userId,
   };
   // add stuff based on condition
 
-  if (phone) {
-    queryObject.phone = phone;
+  if (billObj.customerName) {
+    queryObject.customerName = billObj.customerName;
   }
-  if (city) {
-    queryObject.city = { $regex: city, $options: "i" };
+  if (billObj.city) {
+    queryObject.city = { $regex: billObj.city, $options: "i" };
   }
-  if (name) {
-    queryObject.name = { $regex: name, $options: "i" };
+  if (billObj.phone) {
+    queryObject.phone = { $regex: billObj.phone, $options: "i" };
   }
+  if (billObj.billType) {
+    queryObject.billType = billObj.billType;
+  }
+
+  queryObject.billDate = {
+    $gte: new Date(new Date(billObj.fromDate).setHours(0)),
+    $lt: new Date(new Date(billObj.toDate).setHours(23, 59, 59)),
+  };
+
   // NO AWAIT
 
-  let result = Customer.find(queryObject);
+  let result = Bill.find(queryObject);
 
   // chain sort conditions
 
@@ -66,19 +95,11 @@ const getAllBillings = async (req, res) => {
 
   //
 
-  // setup pagination
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+  const bills = await result;
 
-  result = result.skip(skip).limit(limit);
+  const totalBills = await Bill.countDocuments(queryObject);
 
-  const customers = await result;
-
-  const totalCustomers = await Customer.countDocuments(queryObject);
-  const numOfPages = Math.ceil(totalCustomers / limit);
-
-  res.status(StatusCodes.OK).json({ customers, totalCustomers, numOfPages });
+  res.status(StatusCodes.OK).json({ bills, totalBills });
 };
 
 const updateBilling = async (req, res) => {
