@@ -43,7 +43,6 @@ const CustomersContainer = () => {
       </h5>
       <div className="jobs">
         {customers.map((customer) => {
-          console.log("customer", customer);
           return <Customer key={customer._id} {...customer} />;
         })}
       </div>

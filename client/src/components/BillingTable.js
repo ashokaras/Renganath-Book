@@ -35,7 +35,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export const ReadOnlyRow = ({ row, handleEdit, handleDeleteRow }) => {
-  console.log("billing row id", row.id);
   return (
     <StyledTableRow key={row.productName}>
       <StyledTableCell scope="row">{row.productName}</StyledTableCell>
@@ -180,12 +179,10 @@ const BillingTable = ({
       newEditFormData["total"] =
         newEditFormData["quantity"] * newEditFormData["price"];
     }
-    console.log("Anna new edit form data", newEditFormData);
     setEditFormData(newEditFormData);
   };
 
   const handleEdit = (event, billingRow) => {
-    console.log("billing", billingRow);
     event.preventDefault();
     setEditBillingId(billingRow.id);
 
@@ -214,7 +211,6 @@ const BillingTable = ({
 
   return (
     <>
-      {console.log("billing render")}
       <TableContainer
         component={Paper}
         style={{ overflow: "hidden", width: "fit-content" }}
@@ -232,9 +228,6 @@ const BillingTable = ({
           </TableHead>
           <TableBody>
             {billingTableData.map((row) => {
-              console.log("billing row is ", row);
-              console.log("billing editBillingId is ", editBillingId);
-
               return (
                 <Fragment>
                   {editBillingId === row.id ? (

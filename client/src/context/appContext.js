@@ -50,6 +50,12 @@ import {
   HANDLE_SUBMIT_SEARCH,
   GET_BILLS_BEGIN,
   GET_BILLS_SUCCESS,
+  DELETE_BILL_BEGIN,
+  DELETE_BILL_ERROR,
+  SET_EDIT_BILL,
+  EDIT_BILL_BEGIN,
+  EDIT_BILL_SUCCESS,
+  EDIT_BILL_ERROR,
 } from "./actions";
 
 const token = localStorage.getItem("token");
@@ -131,7 +137,6 @@ const AppProvider = ({ children }) => {
       return response;
     },
     (error) => {
-      // console.log(error.response)
       if (error.response.status === 401) {
         logoutUser();
       }
@@ -298,6 +303,53 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const calculateTotal = (billingTableData, gstCharge, billDiscount) => {
+    const tableTotal =
+      billingTableData &&
+      billingTableData
+        .map((element) => {
+          return parseFloat(element.total);
+        })
+        .reduce((partialSum, element) => partialSum + element, 0);
+    return tableTotal + parseFloat(gstCharge) - parseFloat(billDiscount);
+  };
+
+  const editBill = async () => {
+    dispatch({ type: EDIT_BILL_BEGIN });
+
+    try {
+      const {
+        billDate,
+        editBillId,
+        billedCustomer,
+        billingComment,
+        billingTableData,
+        billingType,
+        gstCharge,
+        billDiscount,
+      } = state;
+      await authFetch.patch(`/billings/${state.editBillId}`, {
+        billDate,
+        editBillId,
+        billedCustomer,
+        billingComment,
+        billingTableData,
+        billingType,
+        gstCharge,
+        billDiscount,
+      });
+      dispatch({ type: EDIT_BILL_SUCCESS });
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      dispatch({
+        type: EDIT_BILL_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
   const createBill = async (phone, city) => {
     dispatch({ type: CREATE_BILL_BEGIN });
     try {
@@ -311,18 +363,11 @@ const AppProvider = ({ children }) => {
         billDiscount,
       } = state;
 
-      const calculateTotal = () => {
-        let tableTotal =
-          billingTableData &&
-          billingTableData
-            .map((element) => {
-              return parseFloat(element.total);
-            })
-            .reduce((partialSum, element) => partialSum + element, 0);
-        return tableTotal + parseFloat(gstCharge) - parseFloat(billDiscount);
-      };
-
-      let grandTotal = calculateTotal();
+      const grandTotal = calculateTotal(
+        billingTableData,
+        gstCharge,
+        billDiscount
+      );
 
       await authFetch.post("/billings", {
         billDate,
@@ -350,7 +395,6 @@ const AppProvider = ({ children }) => {
 
   const getJobs = async () => {
     const { page, search, searchStatus, searchType, sort } = state;
-    console.log("Search is ", search);
 
     let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
     if (search) {
@@ -376,7 +420,6 @@ const AppProvider = ({ children }) => {
 
   const getCustomers = async () => {
     const { name, phone, city, sort, page } = state;
-    console.log("Search cust is ", phone);
 
     let url = `/customers?sort=${sort}&page=${page}`;
     if (phone || name || city) {
@@ -385,7 +428,6 @@ const AppProvider = ({ children }) => {
     dispatch({ type: GET_CUSTOMERS_BEGIN });
     try {
       const { data } = await authFetch(url);
-      console.log(data);
       const { customers, totalCustomers, numOfPages } = data;
       dispatch({
         type: GET_CUSTOMERS_SUCCESS,
@@ -415,7 +457,6 @@ const AppProvider = ({ children }) => {
     dispatch({ type: GET_BILLS_BEGIN });
     try {
       const { data } = await authFetch(url);
-      console.log(data);
       const { bills, totalBills } = data;
       dispatch({
         type: GET_BILLS_SUCCESS,
@@ -435,6 +476,9 @@ const AppProvider = ({ children }) => {
   };
   const setEditCustomer = (id) => {
     dispatch({ type: SET_EDIT_CUSTOMER, payload: { id } });
+  };
+  const setEditBill = (id) => {
+    dispatch({ type: SET_EDIT_BILL, payload: { id } });
   };
   const editJob = async () => {
     dispatch({ type: EDIT_JOB_BEGIN });
@@ -481,6 +525,7 @@ const AppProvider = ({ children }) => {
     }
     clearAlert();
   };
+
   const deleteJob = async (jobId) => {
     dispatch({ type: DELETE_JOB_BEGIN });
     try {
@@ -499,6 +544,18 @@ const AppProvider = ({ children }) => {
       logoutUser();
     }
   };
+
+  const deleteBill = async (billId) => {
+    dispatch({ type: DELETE_BILL_BEGIN });
+    try {
+      await authFetch.delete(`/billings/${billId}`);
+      getBills();
+    } catch (error) {
+      dispatch({ type: DELETE_BILL_ERROR });
+      // logoutUser();
+    }
+  };
+
   const showStats = async () => {
     dispatch({ type: SHOW_STATS_BEGIN });
     try {
@@ -525,7 +582,6 @@ const AppProvider = ({ children }) => {
     dispatch({ type: CHANGE_PAGE, payload: { page } });
   };
   const handleDeleteRowBillingData = (id) => {
-    console.log("billing handleDeleteRow", id);
     const newBillingTableData = state.billingTableData.filter(
       (billingTableData) => {
         return id !== billingTableData.id;
@@ -538,9 +594,6 @@ const AppProvider = ({ children }) => {
   };
 
   const handleSaveRowBillingData = (id, formData, setEditBillingId) => {
-    console.log("billing1 handleSaveRowBillingData", id);
-    console.log("billing1 formData", formData);
-
     const newBillingTableData = state.billingTableData.map(
       (billingTableData) => {
         let newFormData = { ...billingTableData };
@@ -550,7 +603,6 @@ const AppProvider = ({ children }) => {
         return newFormData;
       }
     );
-    console.log("billing1 ", newBillingTableData);
     dispatch({
       type: UPDATE_BILLING_TABLE_DATA,
       payload: { newBillingTableData },
@@ -576,6 +628,7 @@ const AppProvider = ({ children }) => {
         getCustomers,
         setEditJob,
         setEditCustomer,
+        setEditBill,
         deleteJob,
         deleteCustomer,
         editJob,
@@ -590,6 +643,8 @@ const AppProvider = ({ children }) => {
         createBill,
         handleSubmitSearch,
         getBills,
+        deleteBill,
+        editBill,
       }}
     >
       {children}

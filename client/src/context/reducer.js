@@ -25,6 +25,7 @@ import {
   GET_JOBS_SUCCESS,
   SET_EDIT_JOB,
   SET_EDIT_CUSTOMER,
+  SET_EDIT_BILL,
   DELETE_JOB_BEGIN,
   DELETE_CUSTOMER_BEGIN,
   EDIT_JOB_BEGIN,
@@ -44,6 +45,11 @@ import {
   EDIT_CUSTOMER_ERROR,
   UPDATE_BILLING_TABLE_DATA,
   HANDLE_SUBMIT_SEARCH,
+  DELETE_BILL_BEGIN,
+  DELETE_BILL_ERROR,
+  EDIT_BILL_BEGIN,
+  EDIT_BILL_SUCCESS,
+  EDIT_BILL_ERROR,
 } from "./actions";
 import moment from "moment";
 import { initialState } from "./appContext";
@@ -55,6 +61,15 @@ const reducer = (state, action) => {
       showAlert: true,
       alertType: "danger",
       alertText: "Please provide all values!",
+    };
+  }
+  if (action.type === DELETE_BILL_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: "Something Went Wrong, Please try again letter!",
     };
   }
   if (action.type === CLEAR_ALERT) {
@@ -177,7 +192,6 @@ const reducer = (state, action) => {
     return { ...state, billingTableData: [...action.payload.billingTableData] };
   }
   if (action.type === UPDATE_BILLING_TABLE_DATA) {
-    console.log("action.payload.newBillingTableData", action.payload);
     return {
       ...state,
       billingTableData: [...action.payload.newBillingTableData],
@@ -313,10 +327,49 @@ const reducer = (state, action) => {
       comment,
     };
   }
+
+  if (action.type === SET_EDIT_BILL) {
+    const bill = state.bills.find((bill) => bill._id === action.payload.id);
+
+    const {
+      _id,
+      billDate,
+      billDiscount,
+      billType,
+      billingTableData,
+      city,
+      comment,
+      customerName,
+      gstCharge,
+      phone,
+    } = bill;
+
+    const billedCustomer = { id: _id, label: customerName };
+    const billingComment = comment;
+    const billingType = billType;
+    return {
+      ...state,
+      isEditing: true,
+      editBillId: _id,
+      billDiscount,
+      billingType,
+      billingTableData,
+      city,
+      billingComment,
+      billedCustomer,
+      gstCharge,
+      phone,
+      billDate,
+    };
+  }
+
   if (action.type === DELETE_JOB_BEGIN) {
     return { ...state, isLoading: true };
   }
   if (action.type === DELETE_CUSTOMER_BEGIN) {
+    return { ...state, isLoading: true };
+  }
+  if (action.type === DELETE_BILL_BEGIN) {
     return { ...state, isLoading: true };
   }
   if (action.type === EDIT_JOB_BEGIN) {
@@ -349,6 +402,12 @@ const reducer = (state, action) => {
       isLoading: true,
     };
   }
+  if (action.type === EDIT_BILL_BEGIN) {
+    return {
+      ...state,
+      isLoading: true,
+    };
+  }
   if (action.type === EDIT_CUSTOMER_SUCCESS) {
     return {
       ...state,
@@ -358,7 +417,25 @@ const reducer = (state, action) => {
       alertText: "Customer Updated!",
     };
   }
+  if (action.type === EDIT_BILL_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "success",
+      alertText: "Bill Updated!",
+    };
+  }
   if (action.type === EDIT_CUSTOMER_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
+  if (action.type === EDIT_BILL_ERROR) {
     return {
       ...state,
       isLoading: false,
@@ -399,7 +476,7 @@ const reducer = (state, action) => {
       city: "",
       sort: "latest",
       searchSubmit: !state.searchSubmit,
-      fromDate: moment().format("MM/DD/yyyy"),
+      fromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
       toDate: moment().format("MM/DD/yyyy"),
     };
   }

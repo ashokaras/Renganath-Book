@@ -18,9 +18,11 @@ import FormRowDatePicker from "./FormRowDatePicker";
 import BillingTable from "./BillingTable";
 import SearchBillContainer from "./SearchBillContainer";
 import BillsViewContainer from "./BillsViewContainer";
+import ReadOnyTable from "./ReadOnyTable";
 export {
   Logo,
   SearchCustomerContainer,
+  ReadOnyTable,
   FormRowSelectAutoComplete,
   FormRowDatePicker,
   FormRowTextArea,

@@ -1,7 +1,6 @@
 import TextField from "@mui/material/TextField";
 
 const FormRow = ({ type, name, value, handleChange, labelText }) => {
-  console.log("asdsadasd", name);
   return (
     <div className="form-row">
       {/* <label htmlFor={name} className="form-label">

@@ -103,47 +103,65 @@ const getAllBillings = async (req, res) => {
 };
 
 const updateBilling = async (req, res) => {
-  const { id: customerId } = req.params;
-  const { name, phone } = req.body;
+  const { id: billId } = req.params;
+  const {
+    billDate,
+    billedCustomer,
+    billingComment,
+    billingTableData,
+    billingType,
+    phone,
+    city,
+    gstCharge,
+    billDiscount,
+    grandTotal,
+  } = req.body;
 
-  if (!name || !phone) {
-    throw new BadRequestError("Please provide all values");
-  }
-  const customer = await Customer.findOne({ _id: customerId });
+  const billObj = {
+    createdBy: req.user.userId,
+    customerName: billedCustomer && billedCustomer.label,
+    billDate: billDate,
+    billType: billingType,
+    comment: billingComment,
+    billingTableData: billingTableData,
+    phone: phone,
+    city: city,
+    grandTotal,
+    billDiscount,
+    gstCharge,
+  };
 
-  if (!customer) {
-    throw new NotFoundError(`No Customer with id :${customerId}`);
+  const bill = await Bill.findOne({ _id: billId });
+
+  if (!bill) {
+    throw new NotFoundError(`No Customer with id :${billId}`);
   }
   // check permissions
 
-  checkPermissions(req.user, customer.createdBy);
+  checkPermissions(req.user, bill.createdBy);
 
-  const updatedCustomer = await Customer.findOneAndUpdate(
-    { _id: customerId },
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const updatedBill = await Bill.findOneAndUpdate({ _id: billId }, billObj, {
+    new: true,
+    runValidators: true,
+  });
 
-  res.status(StatusCodes.OK).json({ updatedCustomer });
+  res.status(StatusCodes.OK).json({ updatedBill });
 };
 
 const deleteBilling = async (req, res) => {
-  const { id: customerId } = req.params;
+  const { id: billId } = req.params;
 
-  const customer = await Customer.findOne({ _id: customerId });
+  const bill = await Bill.findOne({ _id: billId });
 
-  if (!customer) {
-    throw new NotFoundError(`No customer with id :${customerId}`);
+  if (!bill) {
+    throw new NotFoundError(`No customer with id :${billId}`);
   }
 
-  checkPermissions(req.user, customer.createdBy);
+  checkPermissions(req.user, bill.createdBy);
 
-  await customer.remove();
+  await bill.remove();
 
-  res.status(StatusCodes.OK).json({ msg: "Success! Customer removed" });
+  res.status(StatusCodes.OK).json({ msg: "Success! Bill removed" });
 };
 
 export { createBilling, deleteBilling, getAllBillings, updateBilling };

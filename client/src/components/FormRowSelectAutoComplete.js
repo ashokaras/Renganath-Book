@@ -20,7 +20,6 @@ const FormRowSelectAutoComplete = ({
   list,
   billedCustomer,
 }) => {
-  console.log("FormRowSelectAutoComplete", billedCustomer);
   return (
     <Wrapper>
       <div className="form-row">

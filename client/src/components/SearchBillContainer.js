@@ -3,6 +3,7 @@ import {
   FormRowSelect,
   FormRowSelectAutoComplete,
   FormRowDatePicker,
+  Alert,
 } from ".";
 import { useAppContext } from "../context/appContext";
 import Wrapper from "../assets/wrappers/SearchContainer";
@@ -20,6 +21,7 @@ const SearchBillContainer = () => {
     handleSubmitSearch,
     customers,
     getCustomers,
+    showAlert,
     billedCustomer,
     billingOptions,
     fromDate,
@@ -67,6 +69,8 @@ const SearchBillContainer = () => {
   };
   return (
     <Wrapper>
+      {showAlert && <Alert />}
+
       {isLoading ? (
         <Loading center />
       ) : (

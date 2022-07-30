@@ -16,6 +16,7 @@ import CardContent from "@mui/material/CardContent";
 import rupeeicon from "../../assets/images/rupeeicon.svg";
 
 import moment from "moment";
+import { SET_EDIT_BILL } from "../../context/actions";
 
 const Billing = () => {
   const {
@@ -36,7 +37,10 @@ const Billing = () => {
     handleSaveRowBillingData,
     createBill,
     billDiscount,
+    billingComment,
+    isEditing,
     gstCharge,
+    editBill,
   } = useAppContext();
 
   useEffect(() => {
@@ -60,7 +64,11 @@ const Billing = () => {
   };
 
   const handleBillingFormSubmit = (e, phone, city) => {
-    handleSubmit(e, phone, city);
+    if (!isEditing) {
+      handleSubmit(e, phone, city);
+    } else {
+      editBill();
+    }
   };
 
   const handleSearch = (newValue) => {
@@ -73,7 +81,6 @@ const Billing = () => {
   };
 
   const handleBillingForm = (e) => {
-    console.log("Billing form", e.target);
     if (isLoading) return;
     handleChange({ name: e.target.name, value: e.target.value });
   };
@@ -97,7 +104,6 @@ const Billing = () => {
   const city = cityArray && cityArray[0] && cityArray[0]["city"];
 
   const calculateTotal = () => {
-    console.log("calculateTotal", billingTableData);
     let tableTotal =
       billingTableData &&
       billingTableData
@@ -116,7 +122,7 @@ const Billing = () => {
           <Loading center />
         ) : (
           <form className="form">
-            <h3>Billings</h3>
+            <h3> {isEditing ? "Edit Bill" : "Create Bill"}</h3>
             {showAlert && <Alert />}
             <div className="form-center">
               <FormRowSelectAutoComplete
@@ -160,6 +166,7 @@ const Billing = () => {
                 <FormRowTextArea
                   type="text"
                   name="billingComment"
+                  value={billingComment}
                   labelText="Please provide your Comment here ... "
                   handleChange={handleBillingForm}
                 />
@@ -194,6 +201,7 @@ const Billing = () => {
                         <input
                           type="number"
                           name="gstCharge"
+                          value={gstCharge || ""}
                           onChange={handleBillingForm}
                         />
                       </div>
