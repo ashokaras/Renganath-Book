@@ -99,7 +99,6 @@ const SearchBillContainer = () => {
               name="phone"
               maxlength="10"
               labelText="Phone"
-              required={true}
               value={phone}
               handleChange={handleSearch}
             />

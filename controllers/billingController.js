@@ -1,8 +1,7 @@
 import Bill from "../models/Bill.js";
-import Customer from "../models/Customer.js";
 
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, NotFoundError } from "../errors/index.js";
+import { NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
 
 const createBilling = async (req, res) => {
@@ -20,6 +19,7 @@ const createBilling = async (req, res) => {
   } = req.body;
 
   const billObj = {
+    createdByClient: req.user.client,
     createdBy: req.user.userId,
     customerName: billedCustomer && billedCustomer.label,
     billDate: billDate,
@@ -32,8 +32,7 @@ const createBilling = async (req, res) => {
     billDiscount,
     gstCharge,
   };
-  console.log("Request Body", req.body);
-  req.body.createdBy = req.user.userId;
+
   const bill = await Bill.create(billObj);
   res.status(StatusCodes.CREATED).json({ bill });
 };
@@ -43,6 +42,7 @@ const getAllBillings = async (req, res) => {
     req.query;
 
   const billObj = {
+    createdByClient: req.user.client,
     createdBy: req.user.userId,
     customerName: billedCustomer,
     fromDate: fromDate,
@@ -54,7 +54,7 @@ const getAllBillings = async (req, res) => {
   console.log("billedCustomer is ", billObj.customerName);
 
   const queryObject = {
-    createdBy: req.user.userId,
+    createdByClient: req.user.client,
   };
   // add stuff based on condition
 
@@ -123,6 +123,7 @@ const updateBilling = async (req, res) => {
 
   const billObj = {
     createdBy: req.user.userId,
+    createdByClient: req.user.client,
     customerName: billedCustomer && billedCustomer.label,
     billDate: billDate,
     billType: billingType,
@@ -142,7 +143,7 @@ const updateBilling = async (req, res) => {
   }
   // check permissions
 
-  checkPermissions(req.user, bill.createdBy);
+  checkPermissions(req.user.client, bill.createdByClient);
 
   const updatedBill = await Bill.findOneAndUpdate({ _id: billId }, billObj, {
     new: true,
@@ -161,7 +162,7 @@ const deleteBilling = async (req, res) => {
     throw new NotFoundError(`No customer with id :${billId}`);
   }
 
-  checkPermissions(req.user, bill.createdBy);
+  checkPermissions(req.user.client, bill.createdByClient);
 
   await bill.remove();
 

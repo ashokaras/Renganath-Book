@@ -53,6 +53,11 @@ const BillSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Please provide user"],
     },
+    createdByClient: {
+      type: mongoose.Types.ObjectId,
+      ref: "Client",
+      required: [true, "Please provide Client ID"],
+    },
   },
   { timestamps: true }
 );

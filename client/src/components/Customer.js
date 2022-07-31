@@ -6,7 +6,8 @@ import Wrapper from "../assets/wrappers/Job";
 import CustomerInfo from "./CustomerInfo";
 
 const Customer = ({ _id, name, phone, city, comment, createdAt }) => {
-  const { setEditCustomer, deleteCustomer } = useAppContext();
+  const { setEditCustomer, deleteCustomer, user } = useAppContext();
+  const role = user.role;
 
   let date = moment(createdAt);
   date = date.format("MMM Do, YYYY");
@@ -28,6 +29,7 @@ const Customer = ({ _id, name, phone, city, comment, createdAt }) => {
         <footer>
           <div className="actions">
             <Link
+              style={{ pointerEvents: role !== "admin" ? "none" : "" }}
               to="/add-customer"
               className="btn edit-btn"
               onClick={() => setEditCustomer(_id)}
@@ -35,6 +37,7 @@ const Customer = ({ _id, name, phone, city, comment, createdAt }) => {
               Edit
             </Link>
             <button
+              style={{ pointerEvents: role !== "admin" ? "none" : "" }}
               type="button"
               className="btn delete-btn"
               onClick={() => deleteCustomer(_id)}

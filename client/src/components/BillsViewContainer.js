@@ -8,8 +8,17 @@ import { forwardRef, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 
 const BillsViewContainer = forwardRef((props, ref) => {
-  const { isLoading, bills, getBills, searchSubmit, deleteBill, setEditBill } =
-    useAppContext();
+  const {
+    isLoading,
+    bills,
+    getBills,
+    searchSubmit,
+    deleteBill,
+    setEditBill,
+    user,
+  } = useAppContext();
+
+  const role = user.role;
 
   useEffect(() => {
     getBills();
@@ -174,6 +183,7 @@ const BillsViewContainer = forwardRef((props, ref) => {
           deleteBill={deleteBill}
           setEditBill={setEditBill}
           handlePrintMain={handlePrintMain}
+          role={role}
         />
       </Wrapper>
     </div>

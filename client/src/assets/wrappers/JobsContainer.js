@@ -1,6 +1,9 @@
 import styled from "styled-components";
 
 const Wrapper = styled.section`
+  .disableLink {
+    pointer-events: none;
+  }
   .printPage {
     display: none;
   }

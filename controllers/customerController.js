@@ -10,6 +10,9 @@ const createCustomer = async (req, res) => {
     throw new BadRequestError("Please provide all values");
   }
   req.body.createdBy = req.user.userId;
+  req.body.createdByClient = req.user.client;
+  console.log("Request body is", req.body);
+
   const customer = await Customer.create(req.body);
   res.status(StatusCodes.CREATED).json({ customer });
 };
@@ -18,7 +21,7 @@ const getAllCustomers = async (req, res) => {
   const { sort, name, phone, city } = req.query;
 
   const queryObject = {
-    createdBy: req.user.userId,
+    createdByClient: req.user.client,
   };
   // add stuff based on condition
 
@@ -81,7 +84,7 @@ const updateCustomer = async (req, res) => {
   }
   // check permissions
 
-  checkPermissions(req.user, customer.createdBy);
+  checkPermissions(req.user.client, customer.createdByClient);
 
   const updatedCustomer = await Customer.findOneAndUpdate(
     { _id: customerId },
@@ -104,7 +107,7 @@ const deleteCustomer = async (req, res) => {
     throw new NotFoundError(`No customer with id :${customerId}`);
   }
 
-  checkPermissions(req.user, customer.createdBy);
+  checkPermissions(req.user.client, customer.createdByClient);
 
   await customer.remove();
 

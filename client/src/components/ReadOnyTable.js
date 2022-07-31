@@ -38,11 +38,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export const ReadActionCell = ({ deleteBill, id, setEditBill }) => {
+export const ReadActionCell = ({ deleteBill, id, setEditBill, role }) => {
+  const disableLink = "disableLink";
+  let path = role !== "admin" ? "#" : "/";
+
+  console.log("Path is", path);
+
   return (
-    <div className="actions">
+    <div className={"actions"}>
       <Link
-        to="/"
+        style={{ pointerEvents: role !== "admin" ? "none" : "" }}
+        to={path}
         className="edit-icon"
         onClick={() => setEditBill(id)}
         tabIndex={0}
@@ -50,7 +56,13 @@ export const ReadActionCell = ({ deleteBill, id, setEditBill }) => {
         <EditIcon />
       </Link>
 
-      <div className="delete-icon" onClick={() => deleteBill(id)} tabIndex={0}>
+      <div
+        className="delete-icon"
+        disabled={role !== "admin" ? true : false}
+        onClick={() => deleteBill(id)}
+        tabIndex={0}
+        style={{ pointerEvents: role !== "admin" ? "none" : "" }}
+      >
         <DeleteIcon />
       </div>
     </div>
@@ -217,6 +229,7 @@ const ReadOnlyTable = ({
   setEditBill,
   handlePrintMain,
   billTableColumnsPrint,
+  role,
 }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -291,7 +304,6 @@ const ReadOnlyTable = ({
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
-                        key={row.name}
                         selected={isItemSelected}
                         key={row.id}
                       >
@@ -331,6 +343,7 @@ const ReadOnlyTable = ({
                             deleteBill={deleteBill}
                             id={row.id}
                             setEditBill={setEditBill}
+                            role={role}
                           />
                         </StyledTableCell>
                       </StyledTableRow>
