@@ -253,6 +253,7 @@ const BillingTable = ({
         </Table>
       </TableContainer>
       <Button
+        className="noPrint"
         variant="contained"
         style={{ marginTop: "15px" }}
         onClick={() => addBillingDataRow(billingTableData)}

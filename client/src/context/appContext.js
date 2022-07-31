@@ -144,15 +144,16 @@ const AppProvider = ({ children }) => {
     }
   );
 
-  const displayAlert = () => {
-    dispatch({ type: DISPLAY_ALERT });
+  const displayAlert = (alert = "Please provide all the required input !") => {
+    console.log("Alert is", alert);
+    dispatch({ type: DISPLAY_ALERT, payload: { alert } });
     clearAlert();
   };
 
   const clearAlert = () => {
     setTimeout(() => {
       dispatch({ type: CLEAR_ALERT });
-    }, 3000);
+    }, 7000);
   };
 
   const handleSubmitSearch = () => {

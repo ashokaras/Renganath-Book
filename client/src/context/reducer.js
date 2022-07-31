@@ -60,7 +60,7 @@ const reducer = (state, action) => {
       ...state,
       showAlert: true,
       alertType: "danger",
-      alertText: "Please provide all values!",
+      alertText: action.payload.alert,
     };
   }
   if (action.type === DELETE_BILL_ERROR) {
@@ -171,7 +171,7 @@ const reducer = (state, action) => {
       billingType: "",
       billingComment: "",
       billingTableData: [],
-      billDate: moment().format("MM/DD/yyyy"),
+      billDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
       billedCustomer: "",
       customers: [],
       phone: "",
@@ -478,6 +478,13 @@ const reducer = (state, action) => {
       searchSubmit: !state.searchSubmit,
       fromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
       toDate: moment().format("MM/DD/yyyy"),
+      billingType: "",
+      billingComment: "",
+      billingTableData: [],
+      billDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
+      billedCustomer: "",
+      customers: [],
+      comment: "",
     };
   }
   if (action.type === CHANGE_PAGE) {

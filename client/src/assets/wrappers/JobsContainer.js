@@ -1,6 +1,9 @@
 import styled from "styled-components";
 
 const Wrapper = styled.section`
+  .printPage {
+    display: none;
+  }
   margin-top: 4rem;
   h2 {
     text-transform: none;
@@ -105,11 +108,105 @@ const Wrapper = styled.section`
       fill: wheat;
     }
   }
-  @media (min-width: 992px) {
-    .jobs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+
+  @media print {
+    .noPrint {
+      display: none !important;
+    }
+    .printPage {
+      display: block;
+    }
+    table {
+      .status-pill {
+        border-radius: 20px !important;
+        padding: 5px !important;
+      }
+      .red {
+        background-color: #fecaca !important;
+      }
+      .blue {
+        background-color: #7dd3fc !important;
+      }
+      thead {
+        tr {
+          th {
+            span {
+              color: white !important;
+              svg {
+                fill: teal !important ;
+                opacity: 1 !important ;
+              }
+            }
+            span:hover {
+              color: white !important;
+              svg {
+                fill: white !important;
+              }
+            }
+            span:active {
+              color: white !important;
+              svg {
+                fill: white !important;
+              }
+            }
+            span:focus {
+              color: white !important;
+              svg {
+                fill: white !important;
+              }
+            }
+          }
+        }
+      }
+    }
+    .actions {
+      display: flex !important;
+      column-gap: 5px !important;
+      justify-content: flex-end !important;
+    }
+    .MuiTableRow-hover:hover {
+      background-color: #f0fdfa !important;
+    }
+    .MuiToolbar-root {
+      p {
+        margin: unset !important ;
+      }
+
+      .MuiTablePagination-selectLabel {
+      }
+    }
+    .edit-icon {
+      background-color: teal !important;
+      display: flex !important;
+      align-content: center !important;
+      border-radius: 100% !important;
+      cursor: pointer !important;
+      padding: 5px !important;
+      pointer-events: visible !important;
+      .MuiSvgIcon-root {
+        fill: wheat !important;
+      }
+    }
+    .edit-icon:hover {
+      background-color: darkblue !important;
+    }
+    .edit-icon:active,
+    .delete-icon:active {
+      transform: translatey(0.175rem) !important;
+    }
+    .delete-icon:hover {
+      background-color: red !important;
+    }
+    .delete-icon {
+      background-color: crimson !important;
+      display: flex !important;
+      cursor: pointer !important;
+      align-content: center !important;
+      border-radius: 100% !important;
+      padding: 5px !important;
+      .MuiSvgIcon-root {
+        fill: wheat !important;
+      }
     }
   }
 `;

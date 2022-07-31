@@ -29,7 +29,8 @@ const AddCustomer = () => {
     e.preventDefault();
 
     if (!name || !phone || !city) {
-      displayAlert();
+      const alert = "Please provide the Customer Name, Phone and City";
+      displayAlert(alert);
       return;
     }
     if (isEditing) {
@@ -54,19 +55,23 @@ const AddCustomer = () => {
             type="text"
             name="name"
             labelText="Name"
+            required={true}
             value={name}
             handleChange={handleCustomerInput}
           />
           <FormRow
             type="number"
             name="phone"
+            maxlength="10"
             labelText="Phone"
+            required={true}
             value={phone}
             handleChange={handleCustomerInput}
           />
           <FormRow
             type="text"
             labelText="City"
+            required={true}
             name="city"
             value={city}
             handleChange={handleCustomerInput}

@@ -24,8 +24,8 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Stats />} />
-          <Route path="billing" element={<Billing />} />
+          {/* <Route  element={<Stats />} /> */}
+          <Route index element={<Billing />} />
           <Route path="edit-bill" element={<EditBill />} />
           <Route path="add-customer" element={<AddCustomer />} />
           <Route path="edit-customer" element={<EditCustomer />} />

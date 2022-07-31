@@ -42,7 +42,7 @@ export const ReadActionCell = ({ deleteBill, id, setEditBill }) => {
   return (
     <div className="actions">
       <Link
-        to="/billing"
+        to="/"
         className="edit-icon"
         onClick={() => setEditBill(id)}
         tabIndex={0}
@@ -98,7 +98,8 @@ function stableSort(array, comparator) {
 }
 
 function EnhancedTableHead(props) {
-  const { order, orderBy, onRequestSort, headCells } = props;
+  const { order, orderBy, onRequestSort, headCells, billTableColumnsPrint } =
+    props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -135,6 +136,43 @@ function EnhancedTableHead(props) {
   );
 }
 
+function EnhancedTableHeadPrint(props) {
+  const { order, orderBy, onRequestSort, billTableColumnsPrint } = props;
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
+  };
+
+  return (
+    <TableHead>
+      <StyledTableRow>
+        <StyledTableCell padding="checkbox">
+          <></>
+        </StyledTableCell>
+        {billTableColumnsPrint.map((headCell) => (
+          <StyledTableCell
+            key={headCell.id}
+            align="center"
+            padding={headCell.disablePadding ? "none" : "normal"}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : "asc"}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </StyledTableCell>
+        ))}
+      </StyledTableRow>
+    </TableHead>
+  );
+}
 EnhancedTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
@@ -143,7 +181,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const EnhancedTableToolbar = (props) => {
+const EnhancedTableToolbar = ({ handlePrintMain, length }) => {
   return (
     <Toolbar>
       <Typography
@@ -152,18 +190,34 @@ const EnhancedTableToolbar = (props) => {
         id="tableTitle"
         component="div"
       >
-        Total Bills : {props.length}
+        Total Bills : {length}
+      </Typography>
+      <Typography
+        sx={{ flex: "1 1 100%" }}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+        align="right"
+      >
+        <button
+          className="btn print noPrint"
+          onClick={(e) => handlePrintMain(e)}
+        >
+          Print
+        </button>
       </Typography>
     </Toolbar>
   );
 };
 
-export default function ReadOnlyTable({
+const ReadOnlyTable = ({
   headCells,
   rows,
   deleteBill,
   setEditBill,
-}) {
+  handlePrintMain,
+  billTableColumnsPrint,
+}) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
@@ -201,104 +255,191 @@ export default function ReadOnlyTable({
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar length={rows.length} />
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size="medium"
-          >
-            <EnhancedTableHead
-              headCells={headCells}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
+    <>
+      <Box className="noPrint" sx={{ width: "100%" }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
+          <EnhancedTableToolbar
+            length={rows.length}
+            handlePrintMain={handlePrintMain}
+          />
+          <TableContainer>
+            <Table
+              sx={{ minWidth: 750 }}
+              aria-labelledby="tableTitle"
+              size="medium"
+            >
+              <EnhancedTableHead
+                headCells={headCells}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={rows.length}
+              />
+              <TableBody>
+                {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const isItemSelected = isSelected(row.name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <StyledTableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.name}
-                      selected={isItemSelected}
-                    >
-                      <StyledTableCell padding="checkbox"></StyledTableCell>
-                      <StyledTableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
+                    return (
+                      <StyledTableRow
+                        hover
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.name}
+                        selected={isItemSelected}
                       >
-                        {row.billDate}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        {row.sysDate}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        {row.customerName}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        <StatusPill label={row.billType}></StatusPill>
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        {row.phone}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        {row.customerCity}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        {row.credit}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">
-                        {row.debit}
-                      </StyledTableCell>
+                        <StyledTableCell padding="checkbox"></StyledTableCell>
+                        <StyledTableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.billDate}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.sysDate}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.customerName}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          <StatusPill label={row.billType}></StatusPill>
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.phone}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.customerCity}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.credit}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.debit}
+                        </StyledTableCell>
 
-                      <StyledTableCell align="center">
-                        <ReadActionCell
-                          deleteBill={deleteBill}
-                          id={row.id}
-                          setEditBill={setEditBill}
-                        />
-                      </StyledTableCell>
+                        <StyledTableCell align="center">
+                          <ReadActionCell
+                            deleteBill={deleteBill}
+                            id={row.id}
+                            setEditBill={setEditBill}
+                          />
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <StyledTableRow
+                    style={{
+                      height: 53 * emptyRows,
+                    }}
+                  >
+                    <StyledTableCell colSpan={6} />
+                  </StyledTableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
+      </Box>
+      <div className="printPage">
+        <Box sx={{ width: "100%" }}>
+          <Paper sx={{ width: "100%", mb: 2 }}>
+            <EnhancedTableToolbar
+              length={rows.length}
+              handlePrintMain={handlePrintMain}
+            />
+            <TableContainer>
+              <Table aria-labelledby="tableTitle" size="medium">
+                <EnhancedTableHeadPrint
+                  billTableColumnsPrint={billTableColumnsPrint}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {stableSort(rows, getComparator(order, orderBy)).map(
+                    (row, index) => {
+                      const isItemSelected = isSelected(row.name);
+                      const labelId = `enhanced-table-checkbox-${index}`;
+
+                      return (
+                        <StyledTableRow
+                          hover
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={row.name}
+                          selected={isItemSelected}
+                        >
+                          <StyledTableCell padding="checkbox"></StyledTableCell>
+                          <StyledTableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                          >
+                            {row.billDate}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.sysDate}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.customerName}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            <StatusPill label={row.billType}></StatusPill>
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.phone}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.customerCity}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.credit}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.debit}
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      );
+                    }
+                  )}
+                  {emptyRows > 0 && (
+                    <StyledTableRow
+                      style={{
+                        height: 53 * emptyRows,
+                      }}
+                    >
+                      <StyledTableCell colSpan={6} />
                     </StyledTableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <StyledTableRow
-                  style={{
-                    height: 53 * emptyRows,
-                  }}
-                >
-                  <StyledTableCell colSpan={6} />
-                </StyledTableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-    </Box>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Box>
+      </div>
+    </>
   );
-}
+};
+
+export default ReadOnlyTable;
