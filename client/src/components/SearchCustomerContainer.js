@@ -15,6 +15,13 @@ const SearchCustomerContainer = () => {
     handleSubmitSearch,
   } = useAppContext();
   const handleSearch = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    if (name === "phone") {
+      if (value.length > 10) {
+        return;
+      }
+    }
     if (isLoading) return;
     handleChange({ name: e.target.name, value: e.target.value });
   };

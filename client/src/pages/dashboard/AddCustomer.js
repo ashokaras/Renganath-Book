@@ -42,6 +42,11 @@ const AddCustomer = () => {
   const handleCustomerInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
+    if (name === "phone") {
+      if (value.length > 10) {
+        return;
+      }
+    }
     handleChange({ name, value });
   };
 

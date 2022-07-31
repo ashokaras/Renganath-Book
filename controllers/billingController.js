@@ -51,12 +51,16 @@ const getAllBillings = async (req, res) => {
     phone: phone,
     city: city,
   };
+  console.log("billedCustomer is ", billObj.customerName);
+
   const queryObject = {
     createdBy: req.user.userId,
   };
   // add stuff based on condition
 
-  if (billObj.customerName) {
+  if (billObj.customerName && billObj.customerName !== "undefined") {
+    console.log("billedCustomer type is ", typeof billObj.customerName);
+
     queryObject.customerName = billObj.customerName;
   }
   if (billObj.city) {

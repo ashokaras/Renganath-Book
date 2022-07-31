@@ -229,7 +229,7 @@ const BillingTable = ({
           <TableBody>
             {billingTableData.map((row) => {
               return (
-                <Fragment>
+                <Fragment key={row.id}>
                   {editBillingId === row.id ? (
                     <EditableRow
                       row={row}

@@ -26,6 +26,7 @@ const SearchBillContainer = () => {
     billingOptions,
     fromDate,
     toDate,
+    phone,
   } = useAppContext();
 
   useEffect(() => {
@@ -44,7 +45,16 @@ const SearchBillContainer = () => {
   };
 
   const handleSearch = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
     if (isLoading) return;
+    if (name === "phone") {
+      if (value.length > 10) {
+        console.log("Greater than 10");
+        return;
+      }
+    }
+
     handleChange({ name: e.target.name, value: e.target.value });
   };
 
@@ -87,9 +97,13 @@ const SearchBillContainer = () => {
             <FormRow
               type="number"
               name="phone"
+              maxlength="10"
               labelText="Phone"
+              required={true}
+              value={phone}
               handleChange={handleSearch}
             />
+
             <FormRow
               type="text"
               name="city"

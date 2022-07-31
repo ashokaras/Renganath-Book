@@ -130,7 +130,7 @@ const Billing = forwardRef((props, ref) => {
 
   let grandTotal = calculateTotal();
   return (
-    <div classNmae="bill-print" ref={componentRef}>
+    <div className="bill-print" ref={componentRef}>
       <div>
         <Wrapper>
           <>

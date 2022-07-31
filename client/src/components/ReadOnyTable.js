@@ -293,6 +293,7 @@ const ReadOnlyTable = ({
                         tabIndex={-1}
                         key={row.name}
                         selected={isItemSelected}
+                        key={row.id}
                       >
                         <StyledTableCell padding="checkbox"></StyledTableCell>
                         <StyledTableCell
@@ -360,12 +361,12 @@ const ReadOnlyTable = ({
       </Box>
       <div className="printPage">
         <Box sx={{ width: "100%" }}>
-          <Paper sx={{ width: "100%", mb: 2 }}>
+          <Paper sx={{ width: "100%", mb: 2, padding: "10px" }}>
             <EnhancedTableToolbar
               length={rows.length}
               handlePrintMain={handlePrintMain}
             />
-            <TableContainer>
+            <TableContainer sx={{ overflow: "hidden" }}>
               <Table aria-labelledby="tableTitle" size="medium">
                 <EnhancedTableHeadPrint
                   billTableColumnsPrint={billTableColumnsPrint}
@@ -386,8 +387,8 @@ const ReadOnlyTable = ({
                           hover
                           aria-checked={isItemSelected}
                           tabIndex={-1}
-                          key={row.name}
                           selected={isItemSelected}
+                          key={row.id}
                         >
                           <StyledTableCell padding="checkbox"></StyledTableCell>
                           <StyledTableCell

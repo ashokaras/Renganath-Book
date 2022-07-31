@@ -447,7 +447,7 @@ const AppProvider = ({ children }) => {
   const getBills = async () => {
     const { billedCustomer, phone, city, sort, billingType, fromDate, toDate } =
       state;
-    const customerName = billedCustomer && billedCustomer.label;
+    let customerName = billedCustomer && billedCustomer.label;
 
     let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}`;
     if (phone || customerName || city || billingType) {
