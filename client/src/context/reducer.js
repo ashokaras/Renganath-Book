@@ -45,6 +45,7 @@ import {
   EDIT_CUSTOMER_ERROR,
   UPDATE_BILLING_TABLE_DATA,
   HANDLE_SUBMIT_SEARCH,
+  DELETE_CUSTOMER_ERROR,
   DELETE_BILL_BEGIN,
   DELETE_BILL_ERROR,
   EDIT_BILL_BEGIN,
@@ -106,6 +107,15 @@ const reducer = (state, action) => {
       alertText: action.payload.msg,
     };
   }
+  if (action.type === DELETE_CUSTOMER_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
   if (action.type === TOGGLE_SIDEBAR) {
     return {
       ...state,
@@ -159,32 +169,7 @@ const reducer = (state, action) => {
       searchSubmit: !state.searchSubmit,
     };
   }
-  if (action.type === CLEAR_VALUES) {
-    const initialState = {
-      isEditing: false,
-      editJobId: "",
-      position: "",
-      company: "",
-      jobLocation: state.userLocation,
-      jobType: "full-time",
-      status: "pending",
-      billingType: "",
-      billingComment: "",
-      billingTableData: [],
-      billDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
-      billedCustomer: "",
-      customers: [],
-      phone: "",
-      city: "",
-      comment: "",
-      name: "",
-    };
 
-    return {
-      ...state,
-      ...initialState,
-    };
-  }
   if (action.type === CREATE_JOB_BEGIN) {
     return { ...state, isLoading: true };
   }
@@ -341,9 +326,13 @@ const reducer = (state, action) => {
       comment,
       customerName,
       gstCharge,
+      grandTotal,
       phone,
+      bank,
+      cash,
+      voucher,
     } = bill;
-
+    console.log("voucher", voucher);
     const billedCustomer = { id: _id, label: customerName };
     const billingComment = comment;
     const billingType = billType;
@@ -360,6 +349,11 @@ const reducer = (state, action) => {
       gstCharge,
       phone,
       billDate,
+      voucher,
+      name: customerName,
+      billBank: bank,
+      billCash: cash,
+      grandTotal,
     };
   }
 
@@ -469,22 +463,30 @@ const reducer = (state, action) => {
     };
   }
   if (action.type === CLEAR_CUSTOMER_FILTERS) {
+    console.log("Clear values");
     return {
       ...state,
       name: "",
       phone: "",
       city: "",
-      sort: "latest",
+      sort: "Latest",
       searchSubmit: !state.searchSubmit,
       fromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
       toDate: moment().format("MM/DD/yyyy"),
+      sysFromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
+      sysToDate: moment().format("MM/DD/yyyy"),
       billingType: "",
       billingComment: "",
       billingTableData: [],
       billDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
       billedCustomer: "",
-      customers: [],
+      customer: [],
       comment: "",
+      billBank: 0,
+      billCash: 0,
+      billDiscount: 0,
+      gstCharge: 0,
+      voucher: "",
     };
   }
   if (action.type === CHANGE_PAGE) {

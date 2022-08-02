@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import AutoIncrement from "mongoose-sequence";
+
+const AutoIncrementnew = AutoIncrement(mongoose);
 
 const BillSchema = new mongoose.Schema(
   {
@@ -12,8 +15,15 @@ const BillSchema = new mongoose.Schema(
     billDiscount: {
       type: Number,
     },
+    cash: {
+      type: Number,
+    },
+    bank: {
+      type: Number,
+    },
     grandTotal: {
       type: Number,
+      min: [1, "Grand Total must be greater than 0"],
     },
     phone: {
       type: String,
@@ -25,16 +35,17 @@ const BillSchema = new mongoose.Schema(
     },
     billDate: {
       type: Date,
-      required: [true, "Please provide the Bill Date"],
+      required: [true, "Please provide the Entry Date"],
     },
     billType: {
       type: String,
-      enum: ["Sales", "Purchase", "Recipt", "Payments"],
-      required: [true, "Please provide the Bill Type"],
+      enum: ["Sales", "Purchase", "Receipt", "Payments"],
+      required: [true, "Please provide the Entry Type"],
     },
     comment: {
       type: String,
       default: "",
+      required: [true, "Please Provide Comments"],
     },
     billingTableData: {
       type: [
@@ -61,5 +72,7 @@ const BillSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+BillSchema.plugin(AutoIncrementnew, { inc_field: "voucher" });
 
 export default mongoose.model("Bill", BillSchema);

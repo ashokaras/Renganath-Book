@@ -101,7 +101,7 @@ const Wrapper = styled.section`
         background-color: #f3f4f6;
         height: 100%;
         padding: 10px 30px;
-        width: 85px;
+        width: 150px;
         border-radius: 8px;
         padding: 10px;
         -moz-appearance: textfield;

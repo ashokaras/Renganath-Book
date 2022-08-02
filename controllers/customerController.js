@@ -1,6 +1,11 @@
 import Customer from "../models/Customer.js";
+import Bill from "../models/Bill.js";
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, NotFoundError } from "../errors/index.js";
+import {
+  BadRequestError,
+  NotFoundError,
+  ConflictError,
+} from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
 
 const createCustomer = async (req, res) => {
@@ -18,23 +23,25 @@ const createCustomer = async (req, res) => {
 };
 
 const getAllCustomers = async (req, res) => {
-  const { sort, name, phone, city } = req.query;
+  const { sort, name, phone, city, all } = req.query;
 
   const queryObject = {
     createdByClient: req.user.client,
   };
   // add stuff based on condition
 
-  if (phone) {
-    queryObject.phone = { $regex: phone, $options: "i" };
+  if (!all) {
+    if (phone) {
+      queryObject.phone = { $regex: phone, $options: "i" };
+    }
+    if (city) {
+      queryObject.city = { $regex: city, $options: "i" };
+    }
+    if (name) {
+      queryObject.name = { $regex: name, $options: "i" };
+    }
+    // NO AWAIT
   }
-  if (city) {
-    queryObject.city = { $regex: city, $options: "i" };
-  }
-  if (name) {
-    queryObject.name = { $regex: name, $options: "i" };
-  }
-  // NO AWAIT
 
   let result = Customer.find(queryObject);
 
@@ -53,21 +60,24 @@ const getAllCustomers = async (req, res) => {
     result = result.sort("-name");
   }
 
-  //
+  if (!all) {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 25;
+    const skip = (page - 1) * limit;
+
+    result = result.skip(skip).limit(limit);
+    const customers = await result;
+
+    const totalCustomers = await Customer.countDocuments(queryObject);
+    const numOfPages = Math.ceil(totalCustomers / limit);
+    res.status(StatusCodes.OK).json({ customers, totalCustomers, numOfPages });
+  } else {
+    const customers = await result;
+
+    res.status(StatusCodes.OK).json({ customers });
+  }
 
   // setup pagination
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 25;
-  const skip = (page - 1) * limit;
-
-  result = result.skip(skip).limit(limit);
-
-  const customers = await result;
-
-  const totalCustomers = await Customer.countDocuments(queryObject);
-  const numOfPages = Math.ceil(totalCustomers / limit);
-
-  res.status(StatusCodes.OK).json({ customers, totalCustomers, numOfPages });
 };
 
 const updateCustomer = async (req, res) => {
@@ -100,6 +110,15 @@ const updateCustomer = async (req, res) => {
 
 const deleteCustomer = async (req, res) => {
   const { id: customerId } = req.params;
+  const { name } = req.query;
+  const bill = await Bill.findOne({
+    customerName: name,
+    createdByClient: req.user.client,
+  });
+
+  if (bill) {
+    throw new ConflictError("The Customer is having a bill with your company");
+  }
 
   const customer = await Customer.findOne({ _id: customerId });
 

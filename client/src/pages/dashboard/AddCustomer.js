@@ -12,16 +12,15 @@ const AddCustomer = () => {
     name,
     phone,
     city,
-    comment,
     handleChange,
-    clearValues,
+    clearCustomerFilters,
     createCustomer,
     editCustomer,
   } = useAppContext();
 
   useEffect(() => {
     return () => {
-      clearValues();
+      clearCustomerFilters();
     };
   }, []);
 
@@ -81,13 +80,13 @@ const AddCustomer = () => {
             value={city}
             handleChange={handleCustomerInput}
           />
-          <FormRow
+          {/* <FormRow
             name="comment"
             type="text"
             labelText="Comment"
             value={comment}
             handleChange={handleCustomerInput}
-          />
+          /> */}
           {/* btn container */}
           <div className="btn-container">
             <button
@@ -102,7 +101,7 @@ const AddCustomer = () => {
               className="btn btn-block clear-btn"
               onClick={(e) => {
                 e.preventDefault();
-                clearValues();
+                clearCustomerFilters();
               }}
             >
               clear

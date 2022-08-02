@@ -19,6 +19,9 @@ import BillingTable from "./BillingTable";
 import SearchBillContainer from "./SearchBillContainer";
 import BillsViewContainer from "./BillsViewContainer";
 import ReadOnyTable from "./ReadOnyTable";
+import ReportViewContainer from "./ReportViewContainer";
+import SearchReportContainer from "./SearchReportContainer";
+import ReportTable from "./ReportTable";
 export {
   Logo,
   SearchCustomerContainer,
@@ -40,5 +43,8 @@ export {
   ChartsContainer,
   SearchBillContainer,
   Loading,
+  ReportViewContainer,
   BillsViewContainer,
+  SearchReportContainer,
+  ReportTable,
 };

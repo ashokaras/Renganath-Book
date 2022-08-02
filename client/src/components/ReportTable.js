@@ -17,7 +17,6 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { visuallyHidden } from "@mui/utils";
 import { styled } from "@mui/material/styles";
 import { Link } from "react-router-dom";
-import PrintIcon from "@mui/icons-material/Print";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -40,6 +39,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export const ReadActionCell = ({ deleteBill, id, setEditBill, role }) => {
+  const disableLink = "disableLink";
   let path = role !== "admin" ? "#" : "/";
 
   console.log("Path is", path);
@@ -47,24 +47,24 @@ export const ReadActionCell = ({ deleteBill, id, setEditBill, role }) => {
   return (
     <div className={"actions"}>
       <Link
-        to="/"
+        style={{ pointerEvents: role !== "admin" ? "none" : "" }}
+        to={path}
         className="edit-icon"
         onClick={() => setEditBill(id)}
         tabIndex={0}
       >
-        {role === "admin" ? <EditIcon /> : <PrintIcon />}
+        <EditIcon />
       </Link>
-      {role === "admin" ? (
-        <div
-          className="delete-icon"
-          disabled={role !== "admin" ? true : false}
-          onClick={() => deleteBill(id)}
-          tabIndex={0}
-          style={{ pointerEvents: role !== "admin" ? "none" : "" }}
-        >
-          <DeleteIcon />
-        </div>
-      ) : null}
+
+      <div
+        className="delete-icon"
+        disabled={role !== "admin" ? true : false}
+        onClick={() => deleteBill(id)}
+        tabIndex={0}
+        style={{ pointerEvents: role !== "admin" ? "none" : "" }}
+      >
+        <DeleteIcon />
+      </div>
     </div>
   );
 };
@@ -204,7 +204,7 @@ const EnhancedTableToolbar = ({ handlePrintMain, length }) => {
       >
         Total Bills : {length}
       </Typography>
-      {/* <Typography
+      <Typography
         sx={{ flex: "1 1 100%" }}
         variant="h6"
         id="tableTitle"
@@ -217,12 +217,12 @@ const EnhancedTableToolbar = ({ handlePrintMain, length }) => {
         >
           Print
         </button>
-      </Typography> */}
+      </Typography>
     </Toolbar>
   );
 };
 
-const ReadOnlyTable = ({
+const ReportTable = ({
   headCells,
   rows,
   deleteBill,
@@ -341,15 +341,6 @@ const ReadOnlyTable = ({
                         <StyledTableCell align="center">
                           {row.sysDate}
                         </StyledTableCell>
-
-                        <StyledTableCell align="center">
-                          <ReadActionCell
-                            deleteBill={deleteBill}
-                            id={row.id}
-                            setEditBill={setEditBill}
-                            role={role}
-                          />
-                        </StyledTableCell>
                       </StyledTableRow>
                     );
                   })}
@@ -416,10 +407,6 @@ const ReadOnlyTable = ({
                           >
                             {row.billDate}
                           </StyledTableCell>
-
-                          <StyledTableCell align="center">
-                            {row.customerName}
-                          </StyledTableCell>
                           <StyledTableCell align="center">
                             <StatusPill label={row.billType}></StatusPill>
                           </StyledTableCell>
@@ -462,4 +449,4 @@ const ReadOnlyTable = ({
   );
 };
 
-export default ReadOnlyTable;
+export default ReportTable;

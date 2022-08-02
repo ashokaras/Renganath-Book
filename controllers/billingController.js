@@ -7,6 +7,8 @@ import checkPermissions from "../utils/checkPermissions.js";
 const createBilling = async (req, res) => {
   const {
     billDate,
+    cash,
+    bank,
     billedCustomer,
     billingComment,
     billingTableData,
@@ -31,6 +33,8 @@ const createBilling = async (req, res) => {
     grandTotal,
     billDiscount,
     gstCharge,
+    bank,
+    cash,
   };
 
   const bill = await Bill.create(billObj);
@@ -38,8 +42,18 @@ const createBilling = async (req, res) => {
 };
 
 const getAllBillings = async (req, res) => {
-  const { billedCustomer, city, phone, billingType, fromDate, toDate, sort } =
-    req.query;
+  const {
+    billedCustomer,
+    city,
+    phone,
+    billingType,
+    fromDate,
+    toDate,
+    sort,
+    sysFromDate,
+    sysToDate,
+    voucher,
+  } = req.query;
 
   const billObj = {
     createdByClient: req.user.client,
@@ -50,6 +64,9 @@ const getAllBillings = async (req, res) => {
     billType: billingType,
     phone: phone,
     city: city,
+    sysFromDate,
+    sysToDate,
+    voucher,
   };
   console.log("billedCustomer is ", billObj.customerName);
 
@@ -72,10 +89,17 @@ const getAllBillings = async (req, res) => {
   if (billObj.billType) {
     queryObject.billType = billObj.billType;
   }
+  if (billObj.voucher) {
+    queryObject.voucher = billObj.voucher;
+  }
 
   queryObject.billDate = {
     $gte: new Date(new Date(billObj.fromDate).setHours(0)),
     $lt: new Date(new Date(billObj.toDate).setHours(23, 59, 59)),
+  };
+  queryObject.createdAt = {
+    $gte: new Date(new Date(billObj.sysFromDate).setHours(0)),
+    $lt: new Date(new Date(billObj.sysToDate).setHours(23, 59, 59)),
   };
 
   // NO AWAIT
@@ -119,6 +143,8 @@ const updateBilling = async (req, res) => {
     gstCharge,
     billDiscount,
     grandTotal,
+    cash,
+    bank,
   } = req.body;
 
   const billObj = {
@@ -134,12 +160,14 @@ const updateBilling = async (req, res) => {
     grandTotal,
     billDiscount,
     gstCharge,
+    cash,
+    bank,
   };
 
   const bill = await Bill.findOne({ _id: billId });
 
   if (!bill) {
-    throw new NotFoundError(`No Customer with id :${billId}`);
+    throw new NotFoundError(`No Entry found with id :${billId}`);
   }
   // check permissions
 

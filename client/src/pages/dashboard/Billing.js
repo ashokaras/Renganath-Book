@@ -27,9 +27,9 @@ const Billing = forwardRef((props, ref) => {
     displayAlert,
     handleChange,
     customers,
-    getCustomers,
+    getAllCustomers,
     billedCustomer,
-    clearValues,
+    clearCustomerFilters,
     billingOptions,
     billingType,
     billDate,
@@ -43,11 +43,21 @@ const Billing = forwardRef((props, ref) => {
     isEditing,
     gstCharge,
     editBill,
+    billBank,
+    billCash,
+    user,
+    name,
+    voucher,
   } = useAppContext();
 
   useEffect(() => {
-    getCustomers();
-  }, []);
+    console.log("Name is", name);
+    if (!name) {
+      getAllCustomers();
+    }
+  }, [name]);
+
+  const role = user && user.role;
 
   const componentRef = useRef();
 
@@ -70,7 +80,7 @@ const Billing = forwardRef((props, ref) => {
   const handleSubmit = (e, phone, city) => {
     e.preventDefault();
     if (!billDate || !billedCustomer || !billingType) {
-      const alert = "Please provide a Customer and a Bill Type";
+      const alert = "Please provide a Customer and a Entry Type";
       displayAlert(alert);
       return;
     }
@@ -125,7 +135,13 @@ const Billing = forwardRef((props, ref) => {
           return parseFloat(element.total);
         })
         .reduce((partialSum, element) => partialSum + element, 0);
-    return tableTotal + parseFloat(gstCharge) - parseFloat(billDiscount);
+    return (
+      tableTotal +
+      parseFloat(gstCharge) +
+      parseFloat(billDiscount) +
+      parseFloat(billBank) +
+      parseFloat(billCash)
+    );
   };
 
   let grandTotal = calculateTotal();
@@ -146,19 +162,22 @@ const Billing = forwardRef((props, ref) => {
                     Print
                   </button>
                   <h3 className="noPrint">
-                    {isEditing ? "Edit Bill" : "Create Bill"}
+                    {isEditing ? "Edit Entry" : "Create Entry"}
                   </h3>
                   <h3 className="printPage">Bill</h3>
 
                   {showAlert && <Alert />}
                   <div className="form-center">
-                    <FormRowSelectAutoComplete
-                      labelText="Customer"
-                      name="billedCustomer"
-                      handleChange={handleSearch}
-                      list={customerList}
-                      billedCustomer={billedCustomer}
-                    />
+                    <div style={{ pointerEvents: isEditing ? "none" : "" }}>
+                      <FormRowSelectAutoComplete
+                        labelText="Customer"
+                        name="billedCustomer"
+                        handleChange={handleSearch}
+                        list={customerList}
+                        billedCustomer={billedCustomer}
+                      />
+                    </div>
+
                     <FormRow
                       type="text"
                       name="phone"
@@ -176,62 +195,105 @@ const Billing = forwardRef((props, ref) => {
                       disabled
                     />
                     <FormRowSelect
-                      labelText="Billing Type"
+                      labelText="Entry Type"
                       name="billingType"
                       value={billingType}
                       handleChange={handleBillingForm}
                       list={billingOptions}
+                      disabled={isEditing ? true : false}
                     />
                     <FormRowDatePicker
                       name="billDate"
-                      labelText="Bill Date"
+                      labelText="Entry Date"
                       value={billDate}
                       handleChange={handleBillDate}
                     />
-
-                    <div className="text-area">
-                      <FormRowTextArea
-                        type="text"
-                        name="billingComment"
-                        value={billingComment}
-                        labelText="Please provide your Comment here ... "
+                    {isEditing ? (
+                      <FormRow
+                        type="number"
+                        name="voucher"
+                        disabled={true}
+                        labelText="Voucher"
                         handleChange={handleBillingForm}
+                        value={voucher || ""}
                       />
-                    </div>
-                    <div className="table">
-                      <BillingTable
-                        billingTableData={billingTableData}
-                        addBillingDataRow={addBillingDataRow}
-                        handleDeleteRowBillingData={handleDeleteRowBillingData}
-                        handleSaveRowBillingData={handleSaveRowBillingData}
-                      />
-                    </div>
+                    ) : null}
+
+                    {billingType === "Sales" ? (
+                      <>
+                        <div className="table">
+                          <BillingTable
+                            billingTableData={billingTableData}
+                            addBillingDataRow={addBillingDataRow}
+                            handleDeleteRowBillingData={
+                              handleDeleteRowBillingData
+                            }
+                            handleSaveRowBillingData={handleSaveRowBillingData}
+                          />
+                        </div>
+                      </>
+                    ) : null}
 
                     <Card sx={{ minHeight: 150 }} className="total total-sum">
                       <CardContent className="card-content">
-                        <div className="charges">
-                          <div className="charge-label">Discount:</div>
-                          <div className="charge-amount">
-                            <img src={rupeeicon} />
-                            <input
-                              type="number"
-                              name="billDiscount"
-                              onChange={handleBillingForm}
-                            />
-                          </div>
-                        </div>
-                        <div className="charges">
-                          <div className="charge-label">GST:</div>
-                          <div className="charge-amount">
-                            <img src={rupeeicon} />
-                            <input
-                              type="number"
-                              name="gstCharge"
-                              value={gstCharge || ""}
-                              onChange={handleBillingForm}
-                            />
-                          </div>
-                        </div>
+                        {billingType !== "Sales" ? (
+                          <>
+                            <div className="charges">
+                              <div className="charge-label">Bank:</div>
+                              <div className="charge-amount">
+                                <img src={rupeeicon} />
+                                <input
+                                  type="number"
+                                  name="billBank"
+                                  value={billBank || ""}
+                                  onChange={handleBillingForm}
+                                />
+                              </div>
+                            </div>
+                            <div className="charges">
+                              <div className="charge-label">Cash:</div>
+                              <div className="charge-amount">
+                                <img src={rupeeicon} />
+                                <input
+                                  type="number"
+                                  name="billCash"
+                                  value={billCash || ""}
+                                  onChange={handleBillingForm}
+                                />
+                              </div>
+                            </div>
+                          </>
+                        ) : null}
+
+                        {billingType === "Sales" ? (
+                          <>
+                            {" "}
+                            <div className="charges">
+                              <div className="charge-label">Other Charges:</div>
+                              <div className="charge-amount">
+                                <img src={rupeeicon} />
+                                <input
+                                  type="number"
+                                  name="billDiscount"
+                                  value={billDiscount || ""}
+                                  onChange={handleBillingForm}
+                                />
+                              </div>
+                            </div>
+                            <div className="charges">
+                              <div className="charge-label">Tax on Bill:</div>
+                              <div className="charge-amount">
+                                <img src={rupeeicon} />
+                                <input
+                                  type="number"
+                                  name="gstCharge"
+                                  value={gstCharge || ""}
+                                  onChange={handleBillingForm}
+                                />
+                              </div>
+                            </div>
+                          </>
+                        ) : null}
                         <div className="charges">
                           <div className="charge-label">Grand Total:</div>
                           <div className="charge-amount">
@@ -247,26 +309,42 @@ const Billing = forwardRef((props, ref) => {
                       </CardContent>
                     </Card>
 
-                    {/* btn container */}
-                    <div className="btn-container noPrint">
-                      <button
-                        type="submit"
-                        className="btn btn-block submit-btn"
-                        onClick={(e) => handleBillingFormSubmit(e, phone, city)}
-                        disabled={isLoading}
-                      >
-                        submit
-                      </button>
-                      <button
-                        className="btn btn-block clear-btn"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          clearValues();
-                        }}
-                      >
-                        clear
-                      </button>
+                    <div className="text-area">
+                      <FormRowTextArea
+                        type="text"
+                        name="billingComment"
+                        value={billingComment}
+                        labelText="Please provide your Comment here ... "
+                        handleChange={handleBillingForm}
+                      />
                     </div>
+
+                    {/* btn container */}
+                    {role === "admin" ? (
+                      <div className="btn-container noPrint">
+                        <button
+                          type="submit"
+                          className="btn btn-block submit-btn"
+                          onClick={(e) =>
+                            handleBillingFormSubmit(e, phone, city)
+                          }
+                          disabled={isLoading}
+                        >
+                          submit
+                        </button>
+                        {isEditing ? null : (
+                          <button
+                            className="btn btn-block clear-btn"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              clearCustomerFilters();
+                            }}
+                          >
+                            clear
+                          </button>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                 </form>
               </>

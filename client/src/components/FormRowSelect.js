@@ -3,7 +3,14 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 
-const FormRowSelect = ({ labelText, name, value, handleChange, list }) => {
+const FormRowSelect = ({
+  labelText,
+  name,
+  value,
+  handleChange,
+  list,
+  disabled = false,
+}) => {
   return (
     <div className="form-row">
       <FormControl fullWidth>
@@ -15,6 +22,7 @@ const FormRowSelect = ({ labelText, name, value, handleChange, list }) => {
           label={labelText}
           onChange={handleChange}
           fullWidth
+          disabled={disabled}
         >
           {list.map((itemValue, index) => {
             return (

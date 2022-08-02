@@ -7,6 +7,7 @@ import AddCustomer from "./AddCustomer";
 import EditCustomer from "./EditCustomer";
 import Billing from "./Billing";
 import EditBill from "./EditBill";
+import Report from "./Report";
 export {
   AllJobs,
   Profile,
@@ -17,4 +18,5 @@ export {
   EditCustomer,
   EditBill,
   Billing,
+  Report,
 };

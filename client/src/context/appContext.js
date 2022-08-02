@@ -16,7 +16,6 @@ import {
   UPDATE_USER_ERROR,
   HANDLE_CHANGE,
   HANDLE_CUSTOMER_CHANGE,
-  CLEAR_VALUES,
   CREATE_JOB_BEGIN,
   CREATE_JOB_SUCCESS,
   CREATE_JOB_ERROR,
@@ -56,6 +55,7 @@ import {
   EDIT_BILL_BEGIN,
   EDIT_BILL_SUCCESS,
   EDIT_BILL_ERROR,
+  DELETE_CUSTOMER_ERROR,
 } from "./actions";
 
 const token = localStorage.getItem("token");
@@ -91,9 +91,9 @@ const initialState = {
   search: "",
   searchStatus: "all",
   searchType: "all",
-  sort: "Latest",
+  sort: "",
   sortOptions: ["Latest", "Oldest", "Ascending", "Descending"],
-  billingOptions: ["Sales", "Purchase", "Recipt", "Payments"],
+  billingOptions: ["", "Sales", "Purchase", "Receipt", "Payments"],
   billingType: "",
   billingComment: "",
   billingTableData: [],
@@ -105,9 +105,14 @@ const initialState = {
   searchSubmit: false,
   fromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
   toDate: moment().format("MM/DD/yyyy"),
+  sysFromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
+  sysToDate: moment().format("MM/DD/yyyy"),
   gstCharge: 0,
   billDiscount: 0,
   bills: [],
+  billBank: 0,
+  billCash: 0,
+  voucher: "",
 };
 
 const AppContext = React.createContext();
@@ -256,9 +261,6 @@ const AppProvider = ({ children }) => {
     dispatch({ type: HANDLE_CUSTOMER_CHANGE, payload: { name, value } });
   };
 
-  const clearValues = () => {
-    dispatch({ type: CLEAR_VALUES });
-  };
   const createJob = async () => {
     dispatch({ type: CREATE_JOB_BEGIN });
     try {
@@ -271,7 +273,7 @@ const AppProvider = ({ children }) => {
         status,
       });
       dispatch({ type: CREATE_JOB_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -293,8 +295,9 @@ const AppProvider = ({ children }) => {
         comment,
       });
       dispatch({ type: CREATE_CUSTOMER_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
+      console.log(error.response);
       if (error.response.status === 401) return;
       dispatch({
         type: CREATE_CUSTOMER_ERROR,
@@ -304,15 +307,28 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  const calculateTotal = (billingTableData, gstCharge, billDiscount) => {
-    const tableTotal =
+  const calculateTotal = (
+    billingTableData,
+    gstCharge,
+    billDiscount,
+    billBank,
+    billCash
+  ) => {
+    let tableTotal = 0;
+    tableTotal =
       billingTableData &&
       billingTableData
         .map((element) => {
           return parseFloat(element.total);
         })
         .reduce((partialSum, element) => partialSum + element, 0);
-    return tableTotal + parseFloat(gstCharge) - parseFloat(billDiscount);
+    return (
+      tableTotal +
+      parseFloat(gstCharge) +
+      parseFloat(billDiscount) +
+      parseFloat(billBank) +
+      parseFloat(billCash)
+    );
   };
 
   const editBill = async () => {
@@ -328,7 +344,17 @@ const AppProvider = ({ children }) => {
         billingType,
         gstCharge,
         billDiscount,
+        billBank,
+        billCash,
       } = state;
+      const grandTotal = calculateTotal(
+        billingTableData,
+        gstCharge,
+        billDiscount,
+        billBank,
+        billCash
+      );
+
       await authFetch.patch(`/billings/${state.editBillId}`, {
         billDate,
         editBillId,
@@ -337,10 +363,13 @@ const AppProvider = ({ children }) => {
         billingTableData,
         billingType,
         gstCharge,
+        bank: billBank,
+        cash: billCash,
+        grandTotal,
         billDiscount,
       });
       dispatch({ type: EDIT_BILL_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -362,12 +391,16 @@ const AppProvider = ({ children }) => {
         billingType,
         gstCharge,
         billDiscount,
+        billBank,
+        billCash,
       } = state;
 
       const grandTotal = calculateTotal(
         billingTableData,
         gstCharge,
-        billDiscount
+        billDiscount,
+        billBank,
+        billCash
       );
 
       await authFetch.post("/billings", {
@@ -381,9 +414,11 @@ const AppProvider = ({ children }) => {
         gstCharge,
         billDiscount,
         grandTotal,
+        bank: billBank,
+        cash: billCash,
       });
       dispatch({ type: CREATE_BILL_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -419,7 +454,30 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const getAllCustomers = async () => {
+    console.log("get All customers");
+    const { sort, page } = state;
+
+    let url = `/customers?sort=${sort}&page=${page}&all=true`;
+
+    dispatch({ type: GET_CUSTOMERS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { customers } = data;
+      dispatch({
+        type: GET_CUSTOMERS_SUCCESS,
+        payload: {
+          customers,
+        },
+      });
+    } catch (error) {
+      logoutUser();
+    }
+    clearAlert();
+  };
+
   const getCustomers = async () => {
+    console.log("get customers");
     const { name, phone, city, sort, page } = state;
 
     let url = `/customers?sort=${sort}&page=${page}`;
@@ -445,15 +503,32 @@ const AppProvider = ({ children }) => {
   };
 
   const getBills = async () => {
-    const { billedCustomer, phone, city, sort, billingType, fromDate, toDate } =
-      state;
+    const {
+      billedCustomer,
+      phone,
+      city,
+      sort,
+      billingType,
+      fromDate,
+      toDate,
+      sysFromDate,
+      sysToDate,
+      voucher,
+    } = state;
     let customerName = billedCustomer && billedCustomer.label;
 
-    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}`;
-    if (phone || customerName || city || billingType) {
+    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&voucher=${voucher}`;
+    if (
+      phone ||
+      customerName ||
+      city ||
+      billingType ||
+      sysFromDate ||
+      sysToDate
+    ) {
       url =
         url +
-        `&billedCustomer=${customerName}&phone=${phone}&city=${city}&billingType=${billingType}`;
+        `&billedCustomer=${customerName}&phone=${phone}&city=${city}&billingType=${billingType}&sysFromDate=${sysFromDate}&sysToDate=${sysToDate}`;
     }
     dispatch({ type: GET_BILLS_BEGIN });
     try {
@@ -494,7 +569,7 @@ const AppProvider = ({ children }) => {
         status,
       });
       dispatch({ type: EDIT_JOB_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -516,7 +591,7 @@ const AppProvider = ({ children }) => {
         comment,
       });
       dispatch({ type: EDIT_CUSTOMER_SUCCESS });
-      dispatch({ type: CLEAR_VALUES });
+      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -536,13 +611,17 @@ const AppProvider = ({ children }) => {
       logoutUser();
     }
   };
-  const deleteCustomer = async (customerId) => {
+  const deleteCustomer = async (customerId, name) => {
     dispatch({ type: DELETE_CUSTOMER_BEGIN });
     try {
-      await authFetch.delete(`/customers/${customerId}`);
+      await authFetch.delete(`/customers/${customerId}/?name=${name}`);
       getCustomers();
     } catch (error) {
-      logoutUser();
+      console.log("Error is", error.response.data.msg);
+      dispatch({
+        type: DELETE_CUSTOMER_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
     }
   };
 
@@ -621,7 +700,6 @@ const AppProvider = ({ children }) => {
         logoutUser,
         updateUser,
         handleChange,
-        clearValues,
         createJob,
         createCustomer,
         handleCustomerChange,
@@ -646,6 +724,7 @@ const AppProvider = ({ children }) => {
         getBills,
         deleteBill,
         editBill,
+        getAllCustomers,
       }}
     >
       {children}

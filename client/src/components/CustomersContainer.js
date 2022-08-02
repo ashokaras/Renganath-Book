@@ -2,17 +2,13 @@ import { useAppContext } from "../context/appContext";
 import { useEffect } from "react";
 import Loading from "./Loading";
 import Customer from "./Customer";
-import Wrapper from "../assets/wrappers/JobsContainer";
+import Wrapper from "../assets/wrappers/CustomerContainer";
 import PageBtnContainer from "./PageBtnContainer";
 
 const CustomersContainer = () => {
   const {
     isLoading,
-    name,
     totalCustomers,
-    phone,
-    city,
-    sort,
     numOfPages,
     page,
     customers,

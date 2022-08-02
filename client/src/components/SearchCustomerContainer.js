@@ -1,12 +1,14 @@
-import { FormRow, FormRowSelect } from ".";
+import { FormRow, FormRowSelect, Alert } from ".";
 import { useAppContext } from "../context/appContext";
 import Wrapper from "../assets/wrappers/SearchContainer";
+import { useEffect } from "react";
 
 const SearchCustomerContainer = () => {
   const {
     isLoading,
     name,
     phone,
+    showAlert,
     city,
     sort,
     sortOptions,
@@ -14,6 +16,7 @@ const SearchCustomerContainer = () => {
     clearCustomerFilters,
     handleSubmitSearch,
   } = useAppContext();
+
   const handleSearch = (e) => {
     const name = e.target.name;
     const value = e.target.value;
@@ -26,6 +29,13 @@ const SearchCustomerContainer = () => {
     handleChange({ name: e.target.name, value: e.target.value });
   };
 
+  useEffect(() => {
+    return () => {
+      console.log("Unmounting");
+      clearCustomerFilters();
+    };
+  }, []);
+
   const handleSubmitCustomerSearch = (e) => {
     e.preventDefault();
     handleSubmitSearch();
@@ -37,6 +47,8 @@ const SearchCustomerContainer = () => {
   };
   return (
     <Wrapper>
+      {showAlert && <Alert />}
+
       <form className="form">
         <h4>search form</h4>
         <div className="form-center">

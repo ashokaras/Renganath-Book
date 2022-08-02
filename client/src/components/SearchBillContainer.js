@@ -20,17 +20,24 @@ const SearchBillContainer = () => {
     clearCustomerFilters,
     handleSubmitSearch,
     customers,
-    getCustomers,
+    getAllCustomers,
     showAlert,
     billedCustomer,
     billingOptions,
     fromDate,
     toDate,
+    sysFromDate,
+    sysToDate,
     phone,
+    user,
+    voucher,
   } = useAppContext();
 
+  const role = user && user.role;
+
   useEffect(() => {
-    getCustomers();
+    clearCustomerFilters();
+    getAllCustomers();
   }, []);
 
   const customerList =
@@ -68,6 +75,16 @@ const SearchBillContainer = () => {
     handleChange({ name: "toDate", value: newDate });
   };
 
+  const handleSysFromDate = (newValue) => {
+    const newDate = moment(newValue).format("MM/DD/yyyy");
+    handleChange({ name: "sysFromDate", value: newDate });
+  };
+
+  const handleSysToDate = (newValue) => {
+    const newDate = moment(newValue).format("MM/DD/yyyy");
+    handleChange({ name: "sysToDate", value: newDate });
+  };
+
   const handleSubmitBillSearch = (e) => {
     e.preventDefault();
     handleSubmitSearch();
@@ -85,7 +102,7 @@ const SearchBillContainer = () => {
         <Loading center />
       ) : (
         <form className="form">
-          <h4>search Bill</h4>
+          <h4>search Entry</h4>
           <div className="form-center">
             <FormRowSelectAutoComplete
               labelText="Customer"
@@ -110,7 +127,7 @@ const SearchBillContainer = () => {
               handleChange={handleSearch}
             />
             <FormRowSelect
-              labelText="Billing Type"
+              labelText="Entry Type"
               name="billingType"
               handleChange={handleSearch}
               list={billingOptions}
@@ -122,17 +139,36 @@ const SearchBillContainer = () => {
               handleChange={handleSearch}
               list={sortOptions}
             />
+            <FormRow
+              type="number"
+              name="voucher"
+              value={voucher}
+              labelText="Voucher"
+              handleChange={handleSearch}
+            />
             <FormRowDatePicker
               name="fromDate"
-              labelText="From Date"
+              labelText="Entry From Date"
               value={fromDate}
               handleChange={handleFromDate}
             />
             <FormRowDatePicker
               name="toDate"
-              labelText="To Date"
+              labelText="Entry To Date"
               value={toDate}
               handleChange={handleToDate}
+            />
+            <FormRowDatePicker
+              name="sysFromDate"
+              labelText="System From Date"
+              value={sysFromDate}
+              handleChange={handleSysFromDate}
+            />
+            <FormRowDatePicker
+              name="sysToDate"
+              labelText="System To Date"
+              value={sysToDate}
+              handleChange={handleSysToDate}
             />
             <div className="btn-container">
               <button

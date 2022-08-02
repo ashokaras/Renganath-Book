@@ -12,7 +12,8 @@ const FormRowDatePicker = ({ value, handleChange, labelText }) => {
           inputFormat="MM/dd/yyyy"
           value={value}
           onChange={handleChange}
-          renderInput={(params) => <TextField {...params} />}
+          fullWidth
+          renderInput={(params) => <TextField fullWidth {...params} />}
         />
       </LocalizationProvider>
     </div>

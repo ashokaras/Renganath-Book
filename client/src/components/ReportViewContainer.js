@@ -1,12 +1,11 @@
 import { useAppContext } from "../context/appContext";
-import { useEffect, forwardRef, useRef } from "react";
+import { useEffect } from "react";
 import Loading from "./Loading";
 import Wrapper from "../assets/wrappers/JobsContainer";
-import { ReadOnyTable } from "../components";
+import { ReportTable } from ".";
 import moment from "moment";
-import { useReactToPrint } from "react-to-print";
 
-const BillsViewContainer = forwardRef((props, ref) => {
+const ReportViewContainer = ({ handlePrintMain }) => {
   const {
     isLoading,
     bills,
@@ -15,26 +14,14 @@ const BillsViewContainer = forwardRef((props, ref) => {
     deleteBill,
     setEditBill,
     user,
-    clearCustomerFilters,
-    isEditing,
   } = useAppContext();
 
-  const role = user && user.role;
+  const role = user.role;
 
   useEffect(() => {
     getBills();
     // eslint-disable-next-line
   }, [searchSubmit]);
-
-  const componentRef = useRef();
-
-  const handlePrintMain = (e) => {
-    e.preventDefault();
-    handlePrint();
-  };
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-  });
 
   console.log("Bills is ", bills);
 
@@ -119,12 +106,6 @@ const BillsViewContainer = forwardRef((props, ref) => {
       disablePadding: false,
       label: "System Date",
     },
-    {
-      id: "action",
-      disablePadding: false,
-      label: "Actions",
-      numeric: true,
-    },
   ];
 
   const billTableColumnsPrint = [
@@ -133,13 +114,6 @@ const BillsViewContainer = forwardRef((props, ref) => {
       numeric: false,
       disablePadding: false,
       label: "Entry Date",
-    },
-
-    {
-      id: "customerName",
-      numeric: false,
-      disablePadding: false,
-      label: "Customer Name",
     },
     {
       id: "billType",
@@ -184,9 +158,9 @@ const BillsViewContainer = forwardRef((props, ref) => {
   }
 
   return (
-    <div ref={componentRef}>
+    <div>
       <Wrapper>
-        <ReadOnyTable
+        <ReportTable
           billTableColumnsPrint={billTableColumnsPrint}
           headCells={billTableColumns}
           rows={billTableData}
@@ -198,6 +172,6 @@ const BillsViewContainer = forwardRef((props, ref) => {
       </Wrapper>
     </div>
   );
-});
+};
 
-export default BillsViewContainer;
+export default ReportViewContainer;
