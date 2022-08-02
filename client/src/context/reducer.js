@@ -14,25 +14,12 @@ import {
   UPDATE_USER_SUCCESS,
   UPDATE_USER_ERROR,
   HANDLE_CHANGE,
-  CLEAR_VALUES,
-  CREATE_JOB_BEGIN,
-  CREATE_JOB_SUCCESS,
-  CREATE_JOB_ERROR,
   CREATE_BILL_BEGIN,
   CREATE_BILL_SUCCESS,
   CREATE_BILL_ERROR,
-  GET_JOBS_BEGIN,
-  GET_JOBS_SUCCESS,
-  SET_EDIT_JOB,
   SET_EDIT_CUSTOMER,
   SET_EDIT_BILL,
-  DELETE_JOB_BEGIN,
   DELETE_CUSTOMER_BEGIN,
-  EDIT_JOB_BEGIN,
-  EDIT_JOB_SUCCESS,
-  EDIT_JOB_ERROR,
-  SHOW_STATS_BEGIN,
-  SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   ADD_BILLING_TABLE_DATA,
   CLEAR_CUSTOMER_FILTERS,
@@ -170,9 +157,6 @@ const reducer = (state, action) => {
     };
   }
 
-  if (action.type === CREATE_JOB_BEGIN) {
-    return { ...state, isLoading: true };
-  }
   if (action.type === ADD_BILLING_TABLE_DATA) {
     return { ...state, billingTableData: [...action.payload.billingTableData] };
   }
@@ -190,15 +174,6 @@ const reducer = (state, action) => {
     return { ...state, isLoading: true };
   }
 
-  if (action.type === CREATE_JOB_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: "success",
-      alertText: "New Job Created!",
-    };
-  }
   if (action.type === CREATE_CUSTOMER_SUCCESS) {
     return {
       ...state,
@@ -219,15 +194,6 @@ const reducer = (state, action) => {
     };
   }
 
-  if (action.type === CREATE_JOB_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: "danger",
-      alertText: action.payload.msg,
-    };
-  }
   if (action.type === CREATE_CUSTOMER_ERROR) {
     return {
       ...state,
@@ -248,24 +214,13 @@ const reducer = (state, action) => {
     };
   }
 
-  if (action.type === GET_JOBS_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false };
-  }
   if (action.type === GET_CUSTOMERS_BEGIN) {
     return { ...state, isLoading: true, showAlert: false };
   }
   if (action.type === GET_BILLS_BEGIN) {
     return { ...state, isLoading: true, showAlert: false };
   }
-  if (action.type === GET_JOBS_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      jobs: action.payload.jobs,
-      totalJobs: action.payload.totalJobs,
-      numOfPages: action.payload.numOfPages,
-    };
-  }
+
   if (action.type === GET_CUSTOMERS_SUCCESS) {
     return {
       ...state,
@@ -283,20 +238,7 @@ const reducer = (state, action) => {
       totalBills: action.payload.totalBills,
     };
   }
-  if (action.type === SET_EDIT_JOB) {
-    const job = state.jobs.find((job) => job._id === action.payload.id);
-    const { _id, position, company, jobLocation, jobType, status } = job;
-    return {
-      ...state,
-      isEditing: true,
-      editJobId: _id,
-      position,
-      company,
-      jobLocation,
-      jobType,
-      status,
-    };
-  }
+
   if (action.type === SET_EDIT_CUSTOMER) {
     const customer = state.customers.find(
       (customer) => customer._id === action.payload.id
@@ -357,39 +299,13 @@ const reducer = (state, action) => {
     };
   }
 
-  if (action.type === DELETE_JOB_BEGIN) {
-    return { ...state, isLoading: true };
-  }
   if (action.type === DELETE_CUSTOMER_BEGIN) {
     return { ...state, isLoading: true };
   }
   if (action.type === DELETE_BILL_BEGIN) {
     return { ...state, isLoading: true };
   }
-  if (action.type === EDIT_JOB_BEGIN) {
-    return {
-      ...state,
-      isLoading: true,
-    };
-  }
-  if (action.type === EDIT_JOB_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: "success",
-      alertText: "Job Updated!",
-    };
-  }
-  if (action.type === EDIT_JOB_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: "danger",
-      alertText: action.payload.msg,
-    };
-  }
+
   if (action.type === EDIT_CUSTOMER_BEGIN) {
     return {
       ...state,
@@ -438,21 +354,7 @@ const reducer = (state, action) => {
       alertText: action.payload.msg,
     };
   }
-  if (action.type === SHOW_STATS_BEGIN) {
-    return {
-      ...state,
-      isLoading: true,
-      showAlert: false,
-    };
-  }
-  if (action.type === SHOW_STATS_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      stats: action.payload.stats,
-      monthlyApplications: action.payload.monthlyApplications,
-    };
-  }
+
   if (action.type === CLEAR_FILTERS) {
     return {
       ...state,

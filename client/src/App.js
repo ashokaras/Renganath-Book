@@ -1,11 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Register, Landing, Error, ProtectedRoute } from "./pages";
 import {
-  AllJobs,
   Profile,
   SharedLayout,
-  Stats,
-  AddJob,
   AddCustomer,
   Billing,
   EditBill,

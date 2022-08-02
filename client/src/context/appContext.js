@@ -16,32 +16,20 @@ import {
   UPDATE_USER_ERROR,
   HANDLE_CHANGE,
   HANDLE_CUSTOMER_CHANGE,
-  CREATE_JOB_BEGIN,
-  CREATE_JOB_SUCCESS,
-  CREATE_JOB_ERROR,
   CREATE_CUSTOMER_BEGIN,
   CREATE_CUSTOMER_SUCCESS,
   CREATE_CUSTOMER_ERROR,
   CREATE_BILL_BEGIN,
   CREATE_BILL_SUCCESS,
   CREATE_BILL_ERROR,
-  GET_JOBS_BEGIN,
   ADD_BILLING_TABLE_DATA,
-  GET_JOBS_SUCCESS,
   GET_CUSTOMERS_BEGIN,
   GET_CUSTOMERS_SUCCESS,
-  SET_EDIT_JOB,
   SET_EDIT_CUSTOMER,
-  DELETE_JOB_BEGIN,
   DELETE_CUSTOMER_BEGIN,
-  EDIT_JOB_BEGIN,
-  EDIT_JOB_SUCCESS,
-  EDIT_JOB_ERROR,
   EDIT_CUSTOMER_BEGIN,
   EDIT_CUSTOMER_SUCCESS,
   EDIT_CUSTOMER_ERROR,
-  SHOW_STATS_BEGIN,
-  SHOW_STATS_SUCCESS,
   CLEAR_CUSTOMER_FILTERS,
   UPDATE_BILLING_TABLE_DATA,
   CLEAR_FILTERS,
@@ -261,29 +249,6 @@ const AppProvider = ({ children }) => {
     dispatch({ type: HANDLE_CUSTOMER_CHANGE, payload: { name, value } });
   };
 
-  const createJob = async () => {
-    dispatch({ type: CREATE_JOB_BEGIN });
-    try {
-      const { position, company, jobLocation, jobType, status } = state;
-      await authFetch.post("/jobs", {
-        position,
-        company,
-        jobLocation,
-        jobType,
-        status,
-      });
-      dispatch({ type: CREATE_JOB_SUCCESS });
-      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
-    } catch (error) {
-      if (error.response.status === 401) return;
-      dispatch({
-        type: CREATE_JOB_ERROR,
-        payload: { msg: error.response.data.msg },
-      });
-    }
-    clearAlert();
-  };
-
   const createCustomer = async () => {
     dispatch({ type: CREATE_CUSTOMER_BEGIN });
     try {
@@ -429,36 +394,11 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  const getJobs = async () => {
-    const { page, search, searchStatus, searchType, sort } = state;
-
-    let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
-    if (search) {
-      url = url + `&search=${search}`;
-    }
-    dispatch({ type: GET_JOBS_BEGIN });
-    try {
-      const { data } = await authFetch(url);
-      const { jobs, totalJobs, numOfPages } = data;
-      dispatch({
-        type: GET_JOBS_SUCCESS,
-        payload: {
-          jobs,
-          totalJobs,
-          numOfPages,
-        },
-      });
-    } catch (error) {
-      logoutUser();
-    }
-    clearAlert();
-  };
-
   const getAllCustomers = async () => {
     console.log("get All customers");
     const { sort, page } = state;
 
-    let url = `/customers?sort=${sort}&page=${page}&all=true`;
+    const url = `/customers?sort=${sort}&page=${page}&all=true`;
 
     dispatch({ type: GET_CUSTOMERS_BEGIN });
     try {
@@ -515,7 +455,7 @@ const AppProvider = ({ children }) => {
       sysToDate,
       voucher,
     } = state;
-    let customerName = billedCustomer && billedCustomer.label;
+    const customerName = billedCustomer && billedCustomer.label;
 
     let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&voucher=${voucher}`;
     if (
@@ -547,38 +487,13 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  const setEditJob = (id) => {
-    dispatch({ type: SET_EDIT_JOB, payload: { id } });
-  };
   const setEditCustomer = (id) => {
     dispatch({ type: SET_EDIT_CUSTOMER, payload: { id } });
   };
   const setEditBill = (id) => {
     dispatch({ type: SET_EDIT_BILL, payload: { id } });
   };
-  const editJob = async () => {
-    dispatch({ type: EDIT_JOB_BEGIN });
 
-    try {
-      const { position, company, jobLocation, jobType, status } = state;
-      await authFetch.patch(`/jobs/${state.editJobId}`, {
-        company,
-        position,
-        jobLocation,
-        jobType,
-        status,
-      });
-      dispatch({ type: EDIT_JOB_SUCCESS });
-      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
-    } catch (error) {
-      if (error.response.status === 401) return;
-      dispatch({
-        type: EDIT_JOB_ERROR,
-        payload: { msg: error.response.data.msg },
-      });
-    }
-    clearAlert();
-  };
   const editCustomer = async () => {
     dispatch({ type: EDIT_CUSTOMER_BEGIN });
 
@@ -602,15 +517,6 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  const deleteJob = async (jobId) => {
-    dispatch({ type: DELETE_JOB_BEGIN });
-    try {
-      await authFetch.delete(`/jobs/${jobId}`);
-      getJobs();
-    } catch (error) {
-      logoutUser();
-    }
-  };
   const deleteCustomer = async (customerId, name) => {
     dispatch({ type: DELETE_CUSTOMER_BEGIN });
     try {
@@ -636,22 +542,6 @@ const AppProvider = ({ children }) => {
     }
   };
 
-  const showStats = async () => {
-    dispatch({ type: SHOW_STATS_BEGIN });
-    try {
-      const { data } = await authFetch("/jobs/stats");
-      dispatch({
-        type: SHOW_STATS_SUCCESS,
-        payload: {
-          stats: data.defaultStats,
-          monthlyApplications: data.monthlyApplications,
-        },
-      });
-    } catch (error) {
-      logoutUser();
-    }
-    clearAlert();
-  };
   const clearFilters = () => {
     dispatch({ type: CLEAR_FILTERS });
   };
@@ -700,20 +590,14 @@ const AppProvider = ({ children }) => {
         logoutUser,
         updateUser,
         handleChange,
-        createJob,
         createCustomer,
         handleCustomerChange,
-        getJobs,
         getCustomers,
-        setEditJob,
         setEditCustomer,
         setEditBill,
-        deleteJob,
         deleteCustomer,
-        editJob,
         editCustomer,
         clearCustomerFilters,
-        showStats,
         clearFilters,
         changePage,
         addBillingDataRow,
