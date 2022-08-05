@@ -8,6 +8,7 @@ import morgan from "morgan";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import path from "path";
+import winston from "winston";
 
 import helmet from "helmet";
 import xss from "xss-clean";
@@ -32,6 +33,20 @@ import authenticateUser from "./middleware/auth.js";
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
+
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.json(),
+  defaultMeta: { service: "user-service" },
+  transports: [
+    //
+    // - Write all logs with importance level of `error` or less to `error.log`
+    // - Write all logs with importance level of `info` or less to `combined.log`
+    //
+    new winston.transports.File({ filename: "error.json", level: "error" }),
+    new winston.transports.File({ filename: "combined.log" }),
+  ],
+});
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -61,6 +76,7 @@ const port = process.env.PORT || 5000;
 
 const start = async () => {
   try {
+    logger.info(`process.env.MONGO_URL ${process.env.MONGO_URL}`);
     const connection = await connectDB(process.env.MONGO_URL);
 
     app.listen(port, () => {
@@ -72,3 +88,5 @@ const start = async () => {
 };
 
 start();
+
+export { logger };

@@ -15,8 +15,7 @@ import { useReactToPrint } from "react-to-print";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import rupeeicon from "../../assets/images/rupeeicon.svg";
-import BillPrint from "./BillPrint";
-import styles from "./Billing.module.css";
+import { useNavigate } from "react-router-dom";
 
 import moment from "moment";
 
@@ -29,7 +28,6 @@ const Billing = forwardRef((props, ref) => {
     customers,
     getAllCustomers,
     billedCustomer,
-    clearCustomerFilters,
     billingOptions,
     billingType,
     billDate,
@@ -46,16 +44,42 @@ const Billing = forwardRef((props, ref) => {
     billBank,
     billCash,
     user,
-    name,
+    finishEditing,
     voucher,
+    clearValues,
   } = useAppContext();
+  const navigate = useNavigate();
+
+  const fieldValues = {
+    billingComment: "",
+    billTotal: "",
+    gstCharge: "",
+    billDiscount: "",
+    billCash: "",
+    billBank: "",
+    voucher: "",
+    billDate: moment().format("MM/DD/yyyy"),
+    billingTableData: [],
+    billingType: "",
+    billedCustomer: "",
+  };
 
   useEffect(() => {
-    console.log("Name is", name);
-    if (!name) {
+    if (!isEditing) {
+      clearValues(fieldValues);
       getAllCustomers();
     }
-  }, [name]);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (isEditing) {
+        finishEditing();
+      }
+    };
+  }, []);
+
+  console.log("action is customers", customers);
 
   const role = user && user.role;
 
@@ -92,6 +116,7 @@ const Billing = forwardRef((props, ref) => {
       handleSubmit(e, phone, city);
     } else {
       editBill();
+      navigate("/edit-bill");
     }
   };
 
@@ -117,6 +142,8 @@ const Billing = forwardRef((props, ref) => {
     });
 
   const phone = phoneArray && phoneArray[0] && phoneArray[0]["phone"];
+
+  console.log("action is phone", phone);
 
   const cityArray =
     customers &&
@@ -144,7 +171,7 @@ const Billing = forwardRef((props, ref) => {
     );
   };
 
-  let grandTotal = calculateTotal();
+  const grandTotal = calculateTotal();
   return (
     <div className="bill-print" ref={componentRef}>
       <div>
@@ -155,6 +182,8 @@ const Billing = forwardRef((props, ref) => {
             ) : (
               <>
                 <form className="form">
+                  {console.log("actions is showAlert", showAlert)}
+                  {showAlert && <Alert />}
                   <button
                     className="btn print noPrint"
                     onClick={(e) => handlePrintMain(e)}
@@ -166,7 +195,6 @@ const Billing = forwardRef((props, ref) => {
                   </h3>
                   <h3 className="printPage">Bill</h3>
 
-                  {showAlert && <Alert />}
                   <div className="form-center">
                     <div style={{ pointerEvents: isEditing ? "none" : "" }}>
                       <FormRowSelectAutoComplete
@@ -197,7 +225,7 @@ const Billing = forwardRef((props, ref) => {
                     <FormRowSelect
                       labelText="Entry Type"
                       name="billingType"
-                      value={billingType}
+                      value={billingType || ""}
                       handleChange={handleBillingForm}
                       list={billingOptions}
                       disabled={isEditing ? true : false}
@@ -337,7 +365,7 @@ const Billing = forwardRef((props, ref) => {
                             className="btn btn-block clear-btn"
                             onClick={(e) => {
                               e.preventDefault();
-                              clearCustomerFilters();
+                              clearValues(fieldValues);
                             }}
                           >
                             clear

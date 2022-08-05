@@ -39,7 +39,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export const ReadActionCell = ({ deleteBill, id, setEditBill, role }) => {
-  const disableLink = "disableLink";
   let path = role !== "admin" ? "#" : "/";
 
   console.log("Path is", path);
@@ -59,7 +58,9 @@ export const ReadActionCell = ({ deleteBill, id, setEditBill, role }) => {
       <div
         className="delete-icon"
         disabled={role !== "admin" ? true : false}
-        onClick={() => deleteBill(id)}
+        onClick={() => {
+          deleteBill(id);
+        }}
         tabIndex={0}
         style={{ pointerEvents: role !== "admin" ? "none" : "" }}
       >
@@ -193,31 +194,54 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const EnhancedTableToolbar = ({ handlePrintMain, length }) => {
+const EnhancedTableToolbar = ({
+  handlePrintMain,
+  length,
+  openingBalance,
+  openingBalanceType,
+  report,
+}) => {
+  const balanceStyle = openingBalanceType === "debit" ? "red" : "blue";
+
   return (
     <Toolbar>
-      <Typography
-        sx={{ flex: "1 1 100%" }}
-        variant="h6"
-        id="tableTitle"
-        component="div"
-      >
+      <Typography variant="h6" id="tableTitle" component="div">
         Total Bills : {length}
       </Typography>
-      <Typography
-        sx={{ flex: "1 1 100%" }}
-        variant="h6"
-        id="tableTitle"
-        component="div"
-        align="right"
+      <div
+        style={{ display: "flex", width: "fit-content", marginLeft: "auto" }}
       >
-        <button
-          className="btn print noPrint"
-          onClick={(e) => handlePrintMain(e)}
-        >
-          Print
-        </button>
-      </Typography>
+        {openingBalance ? (
+          <Typography
+            sx={{
+              marginRight: "15px",
+              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+            }}
+            variant="h7"
+            id="tableTitle"
+            component="div"
+            align="right"
+          >
+            Opening Balance :
+            <span style={{ color: balanceStyle, marginLeft: "2px" }}>
+              {openingBalance}
+            </span>
+            <span style={{ marginLeft: "5px" }}>
+              {openingBalanceType === "debit" ? " DR" : " CR"}
+            </span>
+          </Typography>
+        ) : null}
+        <Typography variant="h6" id="tableTitle" component="div" align="right">
+          <button
+            className="btn print noPrint"
+            onClick={(e) => handlePrintMain(e)}
+          >
+            Print
+          </button>
+        </Typography>
+      </div>
     </Toolbar>
   );
 };
@@ -230,6 +254,9 @@ const ReportTable = ({
   handlePrintMain,
   billTableColumnsPrint,
   role,
+  openingBalance,
+  openingBalanceType,
+  report,
 }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -274,6 +301,9 @@ const ReportTable = ({
           <EnhancedTableToolbar
             length={rows.length}
             handlePrintMain={handlePrintMain}
+            openingBalance={openingBalance}
+            openingBalanceType={openingBalanceType}
+            report={report}
           />
           <TableContainer>
             <Table

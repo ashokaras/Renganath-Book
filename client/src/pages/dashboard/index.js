@@ -5,6 +5,7 @@ import EditCustomer from "./EditCustomer";
 import Billing from "./Billing";
 import EditBill from "./EditBill";
 import Report from "./Report";
+import CustomerReport from "./CustomerReport";
 export {
   Profile,
   SharedLayout,
@@ -12,5 +13,6 @@ export {
   EditCustomer,
   EditBill,
   Billing,
+  CustomerReport,
   Report,
 };

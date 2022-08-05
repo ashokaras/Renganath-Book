@@ -7,6 +7,7 @@ import {
   Billing,
   EditBill,
   EditCustomer,
+  CustomerReport,
   Report,
 } from "./pages/dashboard";
 
@@ -29,6 +30,7 @@ function App() {
           <Route path="edit-customer" element={<EditCustomer />} />
           <Route path="profile" element={<Profile />} />
           <Route path="report" element={<Report />} />
+          <Route path="customerReport" element={<CustomerReport />} />
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/landing" element={<Landing />} />

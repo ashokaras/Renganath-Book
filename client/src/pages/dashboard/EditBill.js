@@ -3,8 +3,8 @@ import { BillsViewContainer, SearchBillContainer } from "../../components";
 const EditBill = () => {
   return (
     <>
-      <SearchBillContainer />
-      <BillsViewContainer />
+      <SearchBillContainer report="Search Entry" />
+      <BillsViewContainer report="Search Entry" />
     </>
   );
 };

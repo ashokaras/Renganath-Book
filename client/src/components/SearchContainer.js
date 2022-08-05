@@ -1,6 +1,6 @@
-import { FormRow, FormRowSelect } from '.'
-import { useAppContext } from '../context/appContext'
-import Wrapper from '../assets/wrappers/SearchContainer'
+import { FormRow, FormRowSelect } from ".";
+import { useAppContext } from "../context/appContext";
+import Wrapper from "../assets/wrappers/SearchContainer";
 
 const SearchContainer = () => {
   const {
@@ -13,54 +13,56 @@ const SearchContainer = () => {
     handleChange,
     clearFilters,
     jobTypeOptions,
+    setHandleSubmitSearchtrue,
     statusOptions,
-  } = useAppContext()
+  } = useAppContext();
   const handleSearch = (e) => {
-    if (isLoading) return
-    handleChange({ name: e.target.name, value: e.target.value })
-  }
+    if (isLoading) return;
+    handleChange({ name: e.target.name, value: e.target.value });
+  };
   const handleSubmit = (e) => {
-    e.preventDefault()
-    clearFilters()
-  }
+    e.preventDefault();
+    clearFilters();
+    setHandleSubmitSearchtrue();
+  };
   return (
     <Wrapper>
-      <form className='form'>
+      <form className="form">
         <h4>search form</h4>
-        <div className='form-center'>
+        <div className="form-center">
           {/* search position */}
 
           <FormRow
-            type='text'
-            name='search'
+            type="text"
+            name="search"
             value={search}
             handleChange={handleSearch}
           />
           {/* search by status */}
           <FormRowSelect
-            labelText='status'
-            name='searchStatus'
+            labelText="status"
+            name="searchStatus"
             value={searchStatus}
             handleChange={handleSearch}
-            list={['all', ...statusOptions]}
+            list={["all", ...statusOptions]}
           />
           {/* search by type */}
           <FormRowSelect
-            labelText='type'
-            name='searchType'
+            labelText="type"
+            name="searchType"
             value={searchType}
             handleChange={handleSearch}
-            list={['all', ...jobTypeOptions]}
+            list={["all", ...jobTypeOptions]}
           />
           {/* sort */}
           <FormRowSelect
-            name='sort'
+            name="sort"
             value={sort}
             handleChange={handleSearch}
             list={sortOptions}
           />
           <button
-            className='btn btn-block btn-danger'
+            className="btn btn-block btn-danger"
             disabled={isLoading}
             onClick={handleSubmit}
           >
@@ -69,7 +71,7 @@ const SearchContainer = () => {
         </div>
       </form>
     </Wrapper>
-  )
-}
+  );
+};
 
-export default SearchContainer
+export default SearchContainer;

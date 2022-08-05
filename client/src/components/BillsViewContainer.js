@@ -6,7 +6,7 @@ import { ReadOnyTable } from "../components";
 import moment from "moment";
 import { useReactToPrint } from "react-to-print";
 
-const BillsViewContainer = forwardRef((props, ref) => {
+const BillsViewContainer = forwardRef(({ report }, ref) => {
   const {
     isLoading,
     bills,
@@ -15,15 +15,21 @@ const BillsViewContainer = forwardRef((props, ref) => {
     deleteBill,
     setEditBill,
     user,
-    clearCustomerFilters,
-    isEditing,
+    getAllBills,
+    openingBalance,
+    openingBalanceType,
   } = useAppContext();
 
   const role = user && user.role;
 
   useEffect(() => {
-    getBills();
-    // eslint-disable-next-line
+    getAllBills();
+  }, []);
+
+  useEffect(() => {
+    if (searchSubmit === true) {
+      getBills();
+    }
   }, [searchSubmit]);
 
   const componentRef = useRef();
@@ -38,7 +44,7 @@ const BillsViewContainer = forwardRef((props, ref) => {
 
   console.log("Bills is ", bills);
 
-  const billTableData =
+  let billTableData =
     bills &&
     bills.map((bill) => {
       const newBill = {
@@ -60,7 +66,105 @@ const BillsViewContainer = forwardRef((props, ref) => {
       return newBill;
     });
 
-  console.log("Bill Table Data is ", billTableData);
+  billTableData = billTableData ? billTableData : [];
+
+  const customerReportBillTableColumns = [
+    {
+      id: "billDate",
+      numeric: false,
+      disablePadding: false,
+      label: "Entry Date",
+    },
+    {
+      id: "customerName",
+      numeric: false,
+      disablePadding: false,
+      label: "Customer Name",
+    },
+    {
+      id: "billType",
+      numeric: false,
+      disablePadding: false,
+      label: "Entry Type",
+    },
+    {
+      id: "voucher",
+      numeric: true,
+      disablePadding: false,
+      label: "Voucher",
+    },
+    {
+      id: "debit",
+      numeric: true,
+      disablePadding: false,
+      label: "Debit",
+    },
+    {
+      id: "credit",
+      numeric: true,
+      disablePadding: false,
+      label: "Credit",
+    },
+  ];
+
+  const reportBillTableColumns = [
+    {
+      id: "billDate",
+      numeric: false,
+      disablePadding: false,
+      label: "Entry Date",
+    },
+
+    {
+      id: "customerName",
+      numeric: false,
+      disablePadding: false,
+      label: "Customer Name",
+    },
+    {
+      id: "billType",
+      numeric: false,
+      disablePadding: false,
+      label: "Entry Type",
+    },
+    {
+      id: "voucher",
+      numeric: true,
+      disablePadding: false,
+      label: "Voucher",
+    },
+    {
+      id: "phone",
+      numeric: true,
+      disablePadding: false,
+      label: "Phone",
+    },
+    {
+      id: "customerCity",
+      numeric: false,
+      disablePadding: false,
+      label: "City",
+    },
+    {
+      id: "debit",
+      numeric: true,
+      disablePadding: false,
+      label: "Debit",
+    },
+    {
+      id: "credit",
+      numeric: true,
+      disablePadding: false,
+      label: "Credit",
+    },
+
+    {
+      id: "sysDate",
+      numeric: false,
+      disablePadding: false,
+      label: "System Date",
+    },
+  ];
 
   const billTableColumns = [
     {
@@ -179,6 +283,64 @@ const BillsViewContainer = forwardRef((props, ref) => {
     },
   ];
 
+  const reportBillTableColumnsPrint = [
+    {
+      id: "billDate",
+      numeric: false,
+      disablePadding: false,
+      label: "Entry Date",
+    },
+    {
+      id: "billType",
+      numeric: false,
+      disablePadding: false,
+      label: "Entry Type",
+    },
+    {
+      id: "voucher",
+      numeric: true,
+      disablePadding: false,
+      label: "Voucher",
+    },
+    {
+      id: "customerCity",
+      numeric: false,
+      disablePadding: false,
+      label: "City",
+    },
+    {
+      id: "debit",
+      numeric: true,
+      disablePadding: false,
+      label: "Debit",
+    },
+    {
+      id: "credit",
+      numeric: true,
+      disablePadding: false,
+      label: "Credit",
+    },
+    {
+      id: "sysDate",
+      numeric: false,
+      disablePadding: false,
+      label: "System Date",
+    },
+  ];
+
+  const headCells =
+    report === "Report"
+      ? reportBillTableColumns
+      : report === "Customer Report"
+      ? customerReportBillTableColumns
+      : billTableColumns;
+  const headPrintCells =
+    report === "Report"
+      ? reportBillTableColumnsPrint
+      : report === "Customer Report"
+      ? customerReportBillTableColumns
+      : billTableColumnsPrint;
+
   if (isLoading) {
     return <Loading center />;
   }
@@ -187,13 +349,16 @@ const BillsViewContainer = forwardRef((props, ref) => {
     <div ref={componentRef}>
       <Wrapper>
         <ReadOnyTable
-          billTableColumnsPrint={billTableColumnsPrint}
-          headCells={billTableColumns}
+          billTableColumnsPrint={headPrintCells}
+          headCells={headCells}
           rows={billTableData}
           deleteBill={deleteBill}
           setEditBill={setEditBill}
           handlePrintMain={handlePrintMain}
           role={role}
+          openingBalance={openingBalance}
+          openingBalanceType={openingBalanceType}
+          report={report}
         />
       </Wrapper>
     </div>

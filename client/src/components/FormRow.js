@@ -44,6 +44,7 @@ const FormRow = ({
           value={value}
           name={name}
           onChange={handleChange}
+          onWheel={(e) => e.target.blur()}
           fullWidth
         />
       ) : (
@@ -58,6 +59,7 @@ const FormRow = ({
           value={value}
           name={name}
           onChange={handleChange}
+          onWheel={(e) => e.target.blur()}
           fullWidth
         />
       )}

@@ -14,12 +14,20 @@ const CustomersContainer = () => {
     customers,
     getCustomers,
     searchSubmit,
+    getAllCustomers,
   } = useAppContext();
 
   useEffect(() => {
-    getCustomers();
-    // eslint-disable-next-line
+    getAllCustomers();
+  }, []);
+
+  useEffect(() => {
+    console.log("action is searchSubmit", searchSubmit);
+    if (searchSubmit === true) {
+      getCustomers();
+    }
   }, [searchSubmit, page]);
+
   if (isLoading) {
     return <Loading center />;
   }
@@ -35,7 +43,7 @@ const CustomersContainer = () => {
   return (
     <Wrapper>
       <h5>
-        {totalCustomers} customer{customers.length > 1 && "s"} found
+        {customers.length} customer{customers.length > 1 && "s"} found
       </h5>
       <div className="jobs">
         {customers.map((customer) => {

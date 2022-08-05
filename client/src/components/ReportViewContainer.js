@@ -5,7 +5,7 @@ import Wrapper from "../assets/wrappers/JobsContainer";
 import { ReportTable } from ".";
 import moment from "moment";
 
-const ReportViewContainer = ({ handlePrintMain }) => {
+const ReportViewContainer = ({ handlePrintMain, report }) => {
   const {
     isLoading,
     bills,
@@ -13,19 +13,30 @@ const ReportViewContainer = ({ handlePrintMain }) => {
     searchSubmit,
     deleteBill,
     setEditBill,
+    getAllBills,
     user,
+    openingBalance,
+    openingBalanceType,
   } = useAppContext();
 
   const role = user.role;
 
   useEffect(() => {
-    getBills();
-    // eslint-disable-next-line
+    if (report !== "customerReport") {
+      getAllBills();
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("action is searchSubmit", searchSubmit);
+    if (searchSubmit === true) {
+      getBills();
+    }
   }, [searchSubmit]);
 
   console.log("Bills is ", bills);
 
-  const billTableData =
+  let billTableData =
     bills &&
     bills.map((bill) => {
       const newBill = {
@@ -46,6 +57,8 @@ const ReportViewContainer = ({ handlePrintMain }) => {
       }
       return newBill;
     });
+
+  billTableData = billTableData ? billTableData : [];
 
   console.log("Bill Table Data is ", billTableData);
 
@@ -168,6 +181,9 @@ const ReportViewContainer = ({ handlePrintMain }) => {
           setEditBill={setEditBill}
           handlePrintMain={handlePrintMain}
           role={role}
+          openingBalance={openingBalance}
+          openingBalanceType={openingBalanceType}
+          report={report}
         />
       </Wrapper>
     </div>

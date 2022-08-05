@@ -12,14 +12,13 @@ import React, { useEffect } from "react";
 import moment from "moment";
 import Typography from "@mui/material/Typography";
 
-const SearchReportContainer = () => {
+const SearchReportContainer = ({ report = "report" }) => {
   const {
     isLoading,
     sort,
     sortOptions,
     handleChange,
     clearCustomerFilters,
-    handleSubmitSearch,
     customers,
     getAllCustomers,
     showAlert,
@@ -31,10 +30,30 @@ const SearchReportContainer = () => {
     sysToDate,
     bills,
     phone,
+    setHandleSubmitSearchtrue,
+    getBills,
   } = useAppContext();
 
+  const fieldValues = {
+    billingComment: "",
+    billTotal: "",
+    gstCharge: "",
+    billDiscount: "",
+    billCash: "",
+    billBank: "",
+    voucher: "",
+    billDate: moment().format("MM/DD/yyyy"),
+    billingTableData: [],
+    billingType: "",
+    billedCustomer: "",
+  };
+
   useEffect(() => {
+    console.log("Action is search report");
+
     clearCustomerFilters();
+    console.log("Action is search report after clear");
+
     getAllCustomers();
   }, []);
 
@@ -85,12 +104,14 @@ const SearchReportContainer = () => {
 
   const handleSubmitBillSearch = (e) => {
     e.preventDefault();
-    handleSubmitSearch();
+    getBills();
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     clearCustomerFilters();
+    getAllCustomers();
+    setHandleSubmitSearchtrue();
   };
 
   const calcTotal = (billType, bills) => {
@@ -103,10 +124,10 @@ const SearchReportContainer = () => {
     );
   };
 
-  let totalSales = bills && calcTotal("Sales", bills);
-  let totoalPurchase = bills && calcTotal("Purchase", bills);
-  let totalReciept = bills && calcTotal("Reciept", bills);
-  let totalPayments = bills && calcTotal("Payments", bills);
+  const totalSales = bills && calcTotal("Sales", bills);
+  const totoalPurchase = bills && calcTotal("Purchase", bills);
+  const totalReciept = bills && calcTotal("Reciept", bills);
+  const totalPayments = bills && calcTotal("Payments", bills);
 
   return (
     <Wrapper>
@@ -117,37 +138,45 @@ const SearchReportContainer = () => {
       ) : (
         <form className="form">
           <div className="doNotPrint">
-            <h4 className="doNotPrint">search Entry</h4>
+            <h4 className="doNotPrint">
+              search {report === "customerReport" ? "Customer" : ""} Entry
+            </h4>
             <h4 className="printOnly">Report</h4>
 
             <div className="form-center">
-              <FormRowSelectAutoComplete
-                labelText="Customer"
-                name="billedCustomer"
-                handleChange={handleCustomerSearch}
-                list={customerList}
-                billedCustomer={billedCustomer}
-              />
-              <FormRow
-                type="number"
-                name="phone"
-                maxlength="10"
-                labelText="Phone"
-                value={phone}
-                handleChange={handleSearch}
-              />
-              <FormRow
-                type="text"
-                name="city"
-                labelText="City"
-                handleChange={handleSearch}
-              />
-              <FormRowSelect
-                labelText="Entry Type"
-                name="billingType"
-                handleChange={handleSearch}
-                list={billingOptions}
-              />
+              {report === "report" ? null : (
+                <FormRowSelectAutoComplete
+                  labelText="Customer"
+                  name="billedCustomer"
+                  handleChange={handleCustomerSearch}
+                  list={customerList}
+                  billedCustomer={billedCustomer}
+                />
+              )}
+              {report !== "customerReport" ? (
+                <div>
+                  <FormRow
+                    type="number"
+                    name="phone"
+                    maxlength="10"
+                    labelText="Phone"
+                    value={phone}
+                    handleChange={handleSearch}
+                  />
+                  <FormRow
+                    type="text"
+                    name="city"
+                    labelText="City"
+                    handleChange={handleSearch}
+                  />
+                  <FormRowSelect
+                    labelText="Entry Type"
+                    name="billingType"
+                    handleChange={handleSearch}
+                    list={billingOptions}
+                  />
+                </div>
+              ) : null}
               <FormRowSelect
                 labelText="Sort"
                 name="sort"
@@ -155,6 +184,7 @@ const SearchReportContainer = () => {
                 handleChange={handleSearch}
                 list={sortOptions}
               />
+
               <FormRowDatePicker
                 name="fromDate"
                 labelText="Entry From Date"
@@ -167,18 +197,23 @@ const SearchReportContainer = () => {
                 value={toDate}
                 handleChange={handleToDate}
               />
-              <FormRowDatePicker
-                name="sysFromDate"
-                labelText="System From Date"
-                value={sysFromDate}
-                handleChange={handleSysFromDate}
-              />
-              <FormRowDatePicker
-                name="sysToDate"
-                labelText="System To Date"
-                value={sysToDate}
-                handleChange={handleSysToDate}
-              />
+              {report !== "customerReport" ? (
+                <>
+                  <FormRowDatePicker
+                    name="sysFromDate"
+                    labelText="System From Date"
+                    value={sysFromDate}
+                    handleChange={handleSysFromDate}
+                  />
+                  <FormRowDatePicker
+                    name="sysToDate"
+                    labelText="System To Date"
+                    value={sysToDate}
+                    handleChange={handleSysToDate}
+                  />
+                </>
+              ) : null}
+
               <div className="btn-container doNotPrint">
                 <button
                   className="btn submit-btn"
@@ -212,12 +247,6 @@ const SearchReportContainer = () => {
             <Typography variant="h7" gutterBottom component="div">
               Name: {billedCustomer && billedCustomer.label}
             </Typography>
-            {/* <Typography variant="h7" gutterBottom component="div">
-              Phone:{phone}
-            </Typography>
-            <Typography variant="h7" gutterBottom component="div">
-              City: {city}
-            </Typography> */}
 
             <Typography variant="h7" gutterBottom component="div">
               Total Sales: {totalSales ? totalSales : 0}

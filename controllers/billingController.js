@@ -3,6 +3,7 @@ import Bill from "../models/Bill.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
+import { logger } from "../server.js";
 
 const createBilling = async (req, res) => {
   const {
@@ -41,6 +42,16 @@ const createBilling = async (req, res) => {
   res.status(StatusCodes.CREATED).json({ bill });
 };
 
+const calcTotal = (billType, bills) => {
+  return (
+    bills &&
+    bills
+      .filter((bill) => bill.billType === billType)
+      .map((bill) => bill.grandTotal)
+      .reduce((prevValue, currValue) => prevValue + currValue, 0)
+  );
+};
+
 const getAllBillings = async (req, res) => {
   const {
     billedCustomer,
@@ -68,7 +79,12 @@ const getAllBillings = async (req, res) => {
     sysToDate,
     voucher,
   };
-  console.log("billedCustomer is ", billObj.customerName);
+  logger.error("bill object is ", { billObj });
+  logger.info("helloasdasd");
+
+  const queryObjectForOpeningBal = {
+    createdByClient: req.user.client,
+  };
 
   const queryObject = {
     createdByClient: req.user.client,
@@ -76,9 +92,8 @@ const getAllBillings = async (req, res) => {
   // add stuff based on condition
 
   if (billObj.customerName && billObj.customerName !== "undefined") {
-    console.log("billedCustomer type is ", typeof billObj.customerName);
-
     queryObject.customerName = billObj.customerName;
+    queryObjectForOpeningBal.customerName = billObj.customerName;
   }
   if (billObj.city) {
     queryObject.city = { $regex: billObj.city, $options: "i" };
@@ -92,6 +107,10 @@ const getAllBillings = async (req, res) => {
   if (billObj.voucher) {
     queryObject.voucher = billObj.voucher;
   }
+
+  queryObjectForOpeningBal.billDate = {
+    $lt: new Date(new Date(billObj.fromDate).setHours(0)),
+  };
 
   queryObject.billDate = {
     $gte: new Date(new Date(billObj.fromDate).setHours(0)),
@@ -126,8 +145,29 @@ const getAllBillings = async (req, res) => {
   const bills = await result;
 
   const totalBills = await Bill.countDocuments(queryObject);
+  let openingBalance;
+  let openingBalanceType;
 
-  res.status(StatusCodes.OK).json({ bills, totalBills });
+  if (billObj.customerName && billObj.customerName !== "undefined") {
+    const beforeBalance = await Bill.find(queryObjectForOpeningBal);
+    const totalSalesBefore = beforeBalance && calcTotal("Sales", beforeBalance);
+    const totoalPurchaseBefore =
+      beforeBalance && calcTotal("Purchase", beforeBalance);
+    const totalRecieptBefore =
+      beforeBalance && calcTotal("Reciept", beforeBalance);
+    const totalPaymentsBefore =
+      beforeBalance && calcTotal("Payments", beforeBalance);
+
+    openingBalance =
+      totalSalesBefore +
+      totalPaymentsBefore -
+      (totalRecieptBefore + totoalPurchaseBefore);
+    openingBalanceType = openingBalance > 0 ? "debit" : "credit";
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json({ bills, totalBills, openingBalanceType, openingBalance });
 };
 
 const updateBilling = async (req, res) => {

@@ -29,12 +29,13 @@ const Profile = () => {
           <FormRow
             type="text"
             name="name"
+            labelText="Name"
             value={name}
             handleChange={(e) => setName(e.target.value)}
           />
           <FormRow
             type="text"
-            labelText="last name"
+            labelText="Last Name"
             name="lastName"
             value={lastName}
             handleChange={(e) => setLastName(e.target.value)}
@@ -43,12 +44,14 @@ const Profile = () => {
             type="email"
             name="email"
             disabled
+            labelText="Email"
             value={email}
             handleChange={(e) => setEmail(e.target.value)}
           />
           <FormRow
             type="text"
             name="location"
+            labelText="City"
             value={location}
             handleChange={(e) => setLocation(e.target.value)}
           />

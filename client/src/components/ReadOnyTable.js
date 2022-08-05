@@ -74,7 +74,7 @@ export const StatusPill = ({ label }) => {
   if (label === "Sales" || label === "Payments") {
     pill = "red";
   }
-  let pillStyle = "status-pill " + pill;
+  const pillStyle = "status-pill " + pill;
   console.log("pill", pillStyle);
   return <div className={pillStyle}>{label}</div>;
 };
@@ -193,31 +193,54 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const EnhancedTableToolbar = ({ handlePrintMain, length }) => {
+const EnhancedTableToolbar = ({
+  handlePrintMain,
+  length,
+  openingBalance,
+  openingBalanceType,
+  report,
+}) => {
+  const balanceStyle = openingBalanceType === "debit" ? "red" : "blue";
+
   return (
     <Toolbar>
-      <Typography
-        sx={{ flex: "1 1 100%" }}
-        variant="h6"
-        id="tableTitle"
-        component="div"
-      >
+      <Typography variant="h6" id="tableTitle" component="div">
         Total Bills : {length}
       </Typography>
-      {/* <Typography
-        sx={{ flex: "1 1 100%" }}
-        variant="h6"
-        id="tableTitle"
-        component="div"
-        align="right"
+      <div
+        style={{ display: "flex", width: "fit-content", marginLeft: "auto" }}
       >
-        <button
-          className="btn print noPrint"
-          onClick={(e) => handlePrintMain(e)}
-        >
-          Print
-        </button>
-      </Typography> */}
+        {report === "Customer Report" && openingBalanceType ? (
+          <Typography
+            sx={{
+              marginRight: "15px",
+              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+            }}
+            variant="h7"
+            id="tableTitle"
+            component="div"
+            align="right"
+          >
+            Opening Balance :
+            <span style={{ color: balanceStyle, marginLeft: "2px" }}>
+              {openingBalance}
+            </span>
+            <span style={{ marginLeft: "5px" }}>
+              {openingBalanceType === "debit" ? " DR" : " CR"}
+            </span>
+          </Typography>
+        ) : null}
+        <Typography variant="h6" id="tableTitle" component="div" align="right">
+          <button
+            className="btn print noPrint"
+            onClick={(e) => handlePrintMain(e)}
+          >
+            Print
+          </button>
+        </Typography>
+      </div>
     </Toolbar>
   );
 };
@@ -230,6 +253,9 @@ const ReadOnlyTable = ({
   handlePrintMain,
   billTableColumnsPrint,
   role,
+  openingBalance,
+  openingBalanceType,
+  report,
 }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -266,7 +292,7 @@ const ReadOnlyTable = ({
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
+  console.log("Report is ", report);
   return (
     <>
       <Box className="noPrint" sx={{ width: "100%" }}>
@@ -274,6 +300,9 @@ const ReadOnlyTable = ({
           <EnhancedTableToolbar
             length={rows.length}
             handlePrintMain={handlePrintMain}
+            openingBalance={openingBalance}
+            openingBalanceType={openingBalanceType}
+            report={report}
           />
           <TableContainer>
             <Table
@@ -313,6 +342,7 @@ const ReadOnlyTable = ({
                           id={labelId}
                           scope="row"
                           padding="none"
+                          align="center"
                         >
                           {row.billDate}
                         </StyledTableCell>
@@ -326,30 +356,38 @@ const ReadOnlyTable = ({
                         <StyledTableCell align="center">
                           {row.voucher}
                         </StyledTableCell>
-                        <StyledTableCell align="center">
-                          {row.phone}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          {row.customerCity}
-                        </StyledTableCell>
+                        {report === "Customer Report" ? null : (
+                          <>
+                            <StyledTableCell align="center">
+                              {row.phone}
+                            </StyledTableCell>
+                            <StyledTableCell align="center">
+                              {row.customerCity}
+                            </StyledTableCell>
+                          </>
+                        )}
+
                         <StyledTableCell align="center">
                           {row.debit}
                         </StyledTableCell>
                         <StyledTableCell align="center">
                           {row.credit}
                         </StyledTableCell>
-                        <StyledTableCell align="center">
-                          {row.sysDate}
-                        </StyledTableCell>
-
-                        <StyledTableCell align="center">
-                          <ReadActionCell
-                            deleteBill={deleteBill}
-                            id={row.id}
-                            setEditBill={setEditBill}
-                            role={role}
-                          />
-                        </StyledTableCell>
+                        {report === "Customer Report" ? null : (
+                          <StyledTableCell align="center">
+                            {row.sysDate}
+                          </StyledTableCell>
+                        )}
+                        {report === "Search Entry" ? (
+                          <StyledTableCell align="center">
+                            <ReadActionCell
+                              deleteBill={deleteBill}
+                              id={row.id}
+                              setEditBill={setEditBill}
+                              role={role}
+                            />
+                          </StyledTableCell>
+                        ) : null}
                       </StyledTableRow>
                     );
                   })}

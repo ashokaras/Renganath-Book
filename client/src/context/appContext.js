@@ -2,11 +2,14 @@ import React, { useReducer, useContext } from "react";
 import moment from "moment";
 import { nanoid } from "nanoid";
 import reducer from "./reducer";
+
 import axios from "axios";
 import {
   DISPLAY_ALERT,
+  FINISH_EDITING,
   CLEAR_ALERT,
   SETUP_USER_BEGIN,
+  DELETE_CUSTOMER_SUCCESS,
   SETUP_USER_SUCCESS,
   SETUP_USER_ERROR,
   TOGGLE_SIDEBAR,
@@ -44,6 +47,9 @@ import {
   EDIT_BILL_SUCCESS,
   EDIT_BILL_ERROR,
   DELETE_CUSTOMER_ERROR,
+  HANDLE_SUBMIT_SEARCH_FINISHED,
+  DELETE_BILL_SUCCESS,
+  CLEAR_VALUES,
 } from "./actions";
 
 const token = localStorage.getItem("token");
@@ -97,10 +103,12 @@ const initialState = {
   sysToDate: moment().format("MM/DD/yyyy"),
   gstCharge: 0,
   billDiscount: 0,
-  bills: [],
+  bills: undefined,
   billBank: 0,
   billCash: 0,
   voucher: "",
+  openingBalanceType: undefined,
+  openingBalance: undefined,
 };
 
 const AppContext = React.createContext();
@@ -152,6 +160,12 @@ const AppProvider = ({ children }) => {
   const handleSubmitSearch = () => {
     dispatch({ type: HANDLE_SUBMIT_SEARCH });
   };
+
+  const setHandleSubmitSearchtrue = () => {
+    dispatch({ type: HANDLE_SUBMIT_SEARCH });
+  };
+
+  const finishEditing = () => dispatch({ type: FINISH_EDITING });
 
   const addUserToLocalStorage = ({ user, token, location }) => {
     localStorage.setItem("user", JSON.stringify(user));
@@ -216,6 +230,10 @@ const AppProvider = ({ children }) => {
       }
     }
     clearAlert();
+  };
+
+  const clearValues = (fields) => {
+    dispatch({ type: CLEAR_VALUES, payload: fields });
   };
 
   const handleChange = ({ name, value }) => {
@@ -436,6 +454,30 @@ const AppProvider = ({ children }) => {
           numOfPages,
         },
       });
+      dispatch({ type: HANDLE_SUBMIT_SEARCH_FINISHED });
+    } catch (error) {
+      logoutUser();
+    }
+    clearAlert();
+  };
+
+  const getAllBills = async () => {
+    const { sort, fromDate, toDate, sysFromDate, sysToDate } = state;
+
+    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&sysFromDate=${sysFromDate}&sysToDate=${sysToDate}`;
+
+    dispatch({ type: GET_BILLS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { bills, totalBills } = data;
+      dispatch({
+        type: GET_BILLS_SUCCESS,
+        payload: {
+          bills,
+          totalBills,
+        },
+      });
+      dispatch({ type: HANDLE_SUBMIT_SEARCH_FINISHED });
     } catch (error) {
       logoutUser();
     }
@@ -473,14 +515,17 @@ const AppProvider = ({ children }) => {
     dispatch({ type: GET_BILLS_BEGIN });
     try {
       const { data } = await authFetch(url);
-      const { bills, totalBills } = data;
+      const { bills, totalBills, openingBalance, openingBalanceType } = data;
       dispatch({
         type: GET_BILLS_SUCCESS,
         payload: {
           bills,
           totalBills,
+          openingBalance,
+          openingBalanceType,
         },
       });
+      dispatch({ type: HANDLE_SUBMIT_SEARCH_FINISHED });
     } catch (error) {
       logoutUser();
     }
@@ -521,6 +566,7 @@ const AppProvider = ({ children }) => {
     dispatch({ type: DELETE_CUSTOMER_BEGIN });
     try {
       await authFetch.delete(`/customers/${customerId}/?name=${name}`);
+      dispatch({ type: DELETE_CUSTOMER_SUCCESS });
       getCustomers();
     } catch (error) {
       console.log("Error is", error.response.data.msg);
@@ -535,6 +581,8 @@ const AppProvider = ({ children }) => {
     dispatch({ type: DELETE_BILL_BEGIN });
     try {
       await authFetch.delete(`/billings/${billId}`);
+      dispatch({ type: DELETE_BILL_SUCCESS });
+
       getBills();
     } catch (error) {
       dispatch({ type: DELETE_BILL_ERROR });
@@ -609,6 +657,10 @@ const AppProvider = ({ children }) => {
         deleteBill,
         editBill,
         getAllCustomers,
+        setHandleSubmitSearchtrue,
+        getAllBills,
+        finishEditing,
+        clearValues,
       }}
     >
       {children}

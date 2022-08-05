@@ -11,13 +11,13 @@ import { Loading } from "../components";
 import React, { useEffect } from "react";
 import moment from "moment";
 
-const SearchBillContainer = () => {
+const SearchBillContainer = ({ report = "entry" }) => {
   const {
     isLoading,
     sort,
     sortOptions,
     handleChange,
-    clearCustomerFilters,
+    clearValues,
     handleSubmitSearch,
     customers,
     getAllCustomers,
@@ -31,13 +31,31 @@ const SearchBillContainer = () => {
     phone,
     user,
     voucher,
+    setHandleSubmitSearchtrue,
+    billingType,
+    city,
   } = useAppContext();
 
   const role = user && user.role;
 
+  const fieldValues = {
+    billedCustomer: "",
+    phone: "",
+    city: "",
+    billingType: "",
+    sort: "Latest",
+    voucher: "",
+    fromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
+    toDate: moment().format("MM/DD/yyyy"),
+    sysFromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
+    sysToDate: moment().format("MM/DD/yyyy"),
+  };
+
   useEffect(() => {
-    clearCustomerFilters();
-    getAllCustomers();
+    clearValues(fieldValues);
+    if (report !== "Report") {
+      getAllCustomers();
+    }
   }, []);
 
   const customerList =
@@ -92,60 +110,75 @@ const SearchBillContainer = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    clearCustomerFilters();
+    clearValues(fieldValues);
+    setHandleSubmitSearchtrue();
   };
   return (
     <Wrapper>
-      {showAlert && <Alert />}
-
       {isLoading ? (
         <Loading center />
       ) : (
         <form className="form">
-          <h4>search Entry</h4>
+          {showAlert && <Alert />}
+          <h4>{report}</h4>
           <div className="form-center">
-            <FormRowSelectAutoComplete
-              labelText="Customer"
-              name="billedCustomer"
-              handleChange={handleCustomerSearch}
-              list={customerList}
-              billedCustomer={billedCustomer}
-            />
-            <FormRow
-              type="number"
-              name="phone"
-              maxlength="10"
-              labelText="Phone"
-              value={phone}
-              handleChange={handleSearch}
-            />
+            {report === "Report" ? null : (
+              <FormRowSelectAutoComplete
+                labelText="Customer"
+                name="billedCustomer"
+                handleChange={handleCustomerSearch}
+                list={customerList}
+                billedCustomer={billedCustomer}
+              />
+            )}
+            {report === "Customer Report" ? null : (
+              <>
+                <FormRow
+                  type="number"
+                  name="phone"
+                  maxlength="10"
+                  labelText="Phone"
+                  value={phone || ""}
+                  handleChange={handleSearch}
+                />
 
-            <FormRow
-              type="text"
-              name="city"
-              labelText="City"
-              handleChange={handleSearch}
-            />
-            <FormRowSelect
-              labelText="Entry Type"
-              name="billingType"
-              handleChange={handleSearch}
-              list={billingOptions}
-            />
+                <FormRow
+                  type="text"
+                  name="city"
+                  labelText="City"
+                  value={city || ""}
+                  handleChange={handleSearch}
+                />
+                <FormRowSelect
+                  labelText="Entry Type"
+                  name="billingType"
+                  value={billingType || ""}
+                  handleChange={handleSearch}
+                  list={billingOptions}
+                />
+              </>
+            )}
+
             <FormRowSelect
               labelText="Sort"
               name="sort"
-              value={sort}
+              value={sort || ""}
               handleChange={handleSearch}
               list={sortOptions}
             />
-            <FormRow
-              type="number"
-              name="voucher"
-              value={voucher}
-              labelText="Voucher"
-              handleChange={handleSearch}
-            />
+
+            {report === "Customer Report" ? null : (
+              <>
+                <FormRow
+                  type="number"
+                  name="voucher"
+                  value={voucher || ""}
+                  labelText="Voucher"
+                  handleChange={handleSearch}
+                />
+              </>
+            )}
+
             <FormRowDatePicker
               name="fromDate"
               labelText="Entry From Date"
@@ -158,18 +191,23 @@ const SearchBillContainer = () => {
               value={toDate}
               handleChange={handleToDate}
             />
-            <FormRowDatePicker
-              name="sysFromDate"
-              labelText="System From Date"
-              value={sysFromDate}
-              handleChange={handleSysFromDate}
-            />
-            <FormRowDatePicker
-              name="sysToDate"
-              labelText="System To Date"
-              value={sysToDate}
-              handleChange={handleSysToDate}
-            />
+            {report === "Customer Report" ? null : (
+              <>
+                <FormRowDatePicker
+                  name="sysFromDate"
+                  labelText="System From Date"
+                  value={sysFromDate}
+                  handleChange={handleSysFromDate}
+                />
+                <FormRowDatePicker
+                  name="sysToDate"
+                  labelText="System To Date"
+                  value={sysToDate}
+                  handleChange={handleSysToDate}
+                />
+              </>
+            )}
+
             <div className="btn-container">
               <button
                 className="btn submit-btn"

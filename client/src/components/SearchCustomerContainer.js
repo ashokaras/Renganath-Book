@@ -13,9 +13,33 @@ const SearchCustomerContainer = () => {
     sort,
     sortOptions,
     handleChange,
-    clearCustomerFilters,
+    clearValues,
     handleSubmitSearch,
+    setHandleSubmitSearchtrue,
+    isEditing,
+    finishEditing,
   } = useAppContext();
+
+  const fieldValues = {
+    name: "",
+    phone: "",
+    city: "",
+    sort: "Latest",
+  };
+
+  useEffect(() => {
+    if (!isEditing) {
+      clearValues(fieldValues);
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    return () => {
+      if (isEditing) {
+        finishEditing();
+      }
+    };
+  }, []);
 
   const handleSearch = (e) => {
     const name = e.target.name;
@@ -29,13 +53,6 @@ const SearchCustomerContainer = () => {
     handleChange({ name: e.target.name, value: e.target.value });
   };
 
-  useEffect(() => {
-    return () => {
-      console.log("Unmounting");
-      clearCustomerFilters();
-    };
-  }, []);
-
   const handleSubmitCustomerSearch = (e) => {
     e.preventDefault();
     handleSubmitSearch();
@@ -43,7 +60,8 @@ const SearchCustomerContainer = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    clearCustomerFilters();
+    clearValues(fieldValues);
+    setHandleSubmitSearchtrue();
   };
   return (
     <Wrapper>
@@ -58,21 +76,21 @@ const SearchCustomerContainer = () => {
             type="text"
             name="name"
             labelText="Name"
-            value={name}
+            value={name || ""}
             handleChange={handleSearch}
           />
           <FormRow
             type="number"
             name="phone"
             labelText="Phone"
-            value={phone}
+            value={phone || ""}
             handleChange={handleSearch}
           />
           <FormRow
             type="text"
             name="city"
             labelText="City"
-            value={city}
+            value={city || ""}
             handleChange={handleSearch}
           />
           {/* search by status */}
@@ -83,7 +101,7 @@ const SearchCustomerContainer = () => {
           <FormRowSelect
             labelText="Sort"
             name="sort"
-            value={sort}
+            value={sort || "Latest"}
             handleChange={handleSearch}
             list={sortOptions}
           />

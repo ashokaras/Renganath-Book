@@ -6,21 +6,36 @@ import { useEffect } from "react";
 const AddCustomer = () => {
   const {
     isLoading,
-    isEditing,
     showAlert,
     displayAlert,
     name,
     phone,
     city,
     handleChange,
-    clearCustomerFilters,
+    clearValues,
     createCustomer,
     editCustomer,
+    isEditing,
+    finishEditing,
   } = useAppContext();
+
+  const fieldValues = {
+    name: "",
+    phone: "",
+    city: "",
+  };
+
+  useEffect(() => {
+    if (!isEditing) {
+      clearValues(fieldValues);
+    }
+  }, [isEditing]);
 
   useEffect(() => {
     return () => {
-      clearCustomerFilters();
+      if (isEditing) {
+        finishEditing();
+      }
     };
   }, []);
 
@@ -60,7 +75,7 @@ const AddCustomer = () => {
             name="name"
             labelText="Name"
             required={true}
-            value={name}
+            value={name || ""}
             handleChange={handleCustomerInput}
           />
           <FormRow
@@ -69,7 +84,7 @@ const AddCustomer = () => {
             maxlength="10"
             labelText="Phone"
             required={true}
-            value={phone}
+            value={phone || ""}
             handleChange={handleCustomerInput}
           />
           <FormRow
@@ -77,17 +92,10 @@ const AddCustomer = () => {
             labelText="City"
             required={true}
             name="city"
-            value={city}
+            value={city || ""}
             handleChange={handleCustomerInput}
           />
-          {/* <FormRow
-            name="comment"
-            type="text"
-            labelText="Comment"
-            value={comment}
-            handleChange={handleCustomerInput}
-          /> */}
-          {/* btn container */}
+
           <div className="btn-container">
             <button
               type="submit"
@@ -101,7 +109,7 @@ const AddCustomer = () => {
               className="btn btn-block clear-btn"
               onClick={(e) => {
                 e.preventDefault();
-                clearCustomerFilters();
+                clearValues(fieldValues);
               }}
             >
               clear
