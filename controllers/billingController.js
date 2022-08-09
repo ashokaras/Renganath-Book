@@ -3,7 +3,6 @@ import Bill from "../models/Bill.js";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
-import { logger } from "../server.js";
 
 const createBilling = async (req, res) => {
   const {
@@ -160,7 +159,6 @@ const getAllBillings = async (req, res) => {
   let bills = await result;
 
   if (createdBy && createdBy !== "") {
-    logger.error("createdBy is ", { bills });
     bills = bills.filter((bill) => bill.createdBy.email === createdBy);
   }
 
