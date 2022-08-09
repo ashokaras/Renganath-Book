@@ -125,7 +125,7 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <StyledTableCell
             key={headCell.id}
-            align="center"
+            align="left"
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -256,12 +256,15 @@ const ReadOnlyTable = ({
   openingBalance,
   openingBalanceType,
   report,
+  closingBalance,
+  closingBalanceType,
 }) => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const balanceStyle = closingBalanceType === "debit" ? "red" : "blue";
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -378,6 +381,16 @@ const ReadOnlyTable = ({
                             {row.sysDate}
                           </StyledTableCell>
                         )}
+                        {role === "admin" && report !== "Customer Report" ? (
+                          <StyledTableCell align="center">
+                            {row.billStatus}
+                          </StyledTableCell>
+                        ) : null}
+                        {role === "admin" && report !== "Customer Report" ? (
+                          <StyledTableCell align="center">
+                            {row.createdBy.email}
+                          </StyledTableCell>
+                        ) : null}
                         {report === "Search Entry" ? (
                           <StyledTableCell align="center">
                             <ReadActionCell
@@ -403,15 +416,40 @@ const ReadOnlyTable = ({
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {report === "Customer Report" && closingBalanceType ? (
+              <Typography
+                sx={{
+                  marginRight: "80px",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  marginLeft: "auto",
+                }}
+                variant="h7"
+                id="tableTitle"
+                component="div"
+                align="right"
+              >
+                Closing Balance :
+                <span style={{ color: balanceStyle, marginLeft: "2px" }}>
+                  {closingBalance}
+                </span>
+                <span style={{ marginLeft: "5px" }}>
+                  {closingBalanceType === "debit" ? " DR" : " CR"}
+                </span>
+              </Typography>
+            ) : null}
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={rows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </div>
         </Paper>
       </Box>
       <div className="printPage">

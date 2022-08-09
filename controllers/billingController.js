@@ -23,6 +23,7 @@ const createBilling = async (req, res) => {
 
   const billObj = {
     createdByClient: req.user.client,
+    updatedBy: req.user.userId,
     createdBy: req.user.userId,
     customerName: billedCustomer && billedCustomer.label,
     billDate: billDate,
@@ -31,11 +32,11 @@ const createBilling = async (req, res) => {
     billingTableData: billingTableData,
     phone: phone,
     city: city,
-    grandTotal,
-    billDiscount,
-    gstCharge,
-    bank,
-    cash,
+    grandTotal: grandTotal || 0,
+    billDiscount: billDiscount || 0,
+    gstCharge: gstCharge || 0,
+    bank: bank || 0,
+    cash: cash || 0,
   };
 
   const bill = await Bill.create(billObj);
@@ -64,6 +65,8 @@ const getAllBillings = async (req, res) => {
     sysFromDate,
     sysToDate,
     voucher,
+    status,
+    createdBy,
   } = req.query;
 
   const billObj = {
@@ -79,16 +82,28 @@ const getAllBillings = async (req, res) => {
     sysToDate,
     voucher,
   };
-  logger.error("bill object is ", { billObj });
-  logger.info("helloasdasd");
 
-  const queryObjectForOpeningBal = {
-    createdByClient: req.user.client,
-  };
+  let queryObjectForOpeningBal = {};
 
-  const queryObject = {
-    createdByClient: req.user.client,
-  };
+  let queryObject = {};
+  if (status !== "All") {
+    queryObject = {
+      createdByClient: req.user.client,
+      status: status,
+    };
+    queryObjectForOpeningBal = {
+      createdByClient: req.user.client,
+      status: status,
+    };
+  } else {
+    queryObject = {
+      createdByClient: req.user.client,
+    };
+    queryObjectForOpeningBal = {
+      createdByClient: req.user.client,
+    };
+  }
+
   // add stuff based on condition
 
   if (billObj.customerName && billObj.customerName !== "undefined") {
@@ -123,7 +138,7 @@ const getAllBillings = async (req, res) => {
 
   // NO AWAIT
 
-  let result = Bill.find(queryObject);
+  let result = Bill.find(queryObject).populate("createdBy");
 
   // chain sort conditions
 
@@ -142,9 +157,14 @@ const getAllBillings = async (req, res) => {
 
   //
 
-  const bills = await result;
+  let bills = await result;
 
-  const totalBills = await Bill.countDocuments(queryObject);
+  if (createdBy && createdBy !== "") {
+    logger.error("createdBy is ", { bills });
+    bills = bills.filter((bill) => bill.createdBy.email === createdBy);
+  }
+
+  const totalBills = bills.length;
   let openingBalance;
   let openingBalanceType;
 
@@ -188,7 +208,7 @@ const updateBilling = async (req, res) => {
   } = req.body;
 
   const billObj = {
-    createdBy: req.user.userId,
+    updatedBy: req.user.userId,
     createdByClient: req.user.client,
     customerName: billedCustomer && billedCustomer.label,
     billDate: billDate,
@@ -197,11 +217,11 @@ const updateBilling = async (req, res) => {
     billingTableData: billingTableData,
     phone: phone,
     city: city,
-    grandTotal,
-    billDiscount,
-    gstCharge,
-    cash,
-    bank,
+    grandTotal: grandTotal || 0,
+    billDiscount: billDiscount || 0,
+    gstCharge: gstCharge || 0,
+    bank: bank || 0,
+    cash: cash || 0,
   };
 
   const bill = await Bill.findOne({ _id: billId });
@@ -227,12 +247,19 @@ const deleteBilling = async (req, res) => {
   const bill = await Bill.findOne({ _id: billId });
 
   if (!bill) {
-    throw new NotFoundError(`No customer with id :${billId}`);
+    throw new NotFoundError(`No bills with id :${billId}`);
   }
 
   checkPermissions(req.user.client, bill.createdByClient);
 
-  await bill.remove();
+  await Bill.findOneAndUpdate(
+    { _id: billId },
+    { $set: { status: "Deleted" } },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
   res.status(StatusCodes.OK).json({ msg: "Success! Bill removed" });
 };

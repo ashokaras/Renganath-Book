@@ -18,6 +18,11 @@ const BillSchema = new mongoose.Schema(
     cash: {
       type: Number,
     },
+    status: {
+      type: String,
+      enum: ["Active", "Deleted"],
+      default: "Active",
+    },
     bank: {
       type: Number,
     },
@@ -60,6 +65,11 @@ const BillSchema = new mongoose.Schema(
       ],
     },
     createdBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: [true, "Please provide user"],
+    },
+    updatedBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: [true, "Please provide user"],

@@ -34,7 +34,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export const ReadOnlyRow = ({ row, handleEdit, handleDeleteRow }) => {
+export const ReadOnlyRow = ({
+  row,
+  handleEdit,
+  handleDeleteRow,
+  showButton,
+}) => {
   return (
     <StyledTableRow key={row.productName}>
       <StyledTableCell scope="row">{row.productName}</StyledTableCell>
@@ -53,6 +58,7 @@ export const ReadOnlyRow = ({ row, handleEdit, handleDeleteRow }) => {
         <ReadActionCell
           handleDeleteRow={() => handleDeleteRow(row.id)}
           handleEdit={(event) => handleEdit(event, row)}
+          showButton={showButton}
         />
       </StyledTableCell>
     </StyledTableRow>
@@ -66,6 +72,7 @@ export const EditableRow = ({
   handleCancel,
   handleSave,
   setEditBillingId,
+  showButton,
 }) => {
   return (
     <StyledTableRow>
@@ -89,6 +96,7 @@ export const EditableRow = ({
         <Input
           type="number"
           name="quantity"
+          onWheel={(e) => e.target.blur()}
           value={editFormData.quantity}
           onChange={(event) => handleBillingDataChange(event, row.id)}
         ></Input>
@@ -97,6 +105,7 @@ export const EditableRow = ({
         <Input
           type="number"
           name="price"
+          onWheel={(e) => e.target.blur()}
           value={editFormData.price}
           onChange={(event) => handleBillingDataChange(event, row.id)}
         ></Input>
@@ -105,6 +114,7 @@ export const EditableRow = ({
         <Input
           type="number"
           name="total"
+          onWheel={(e) => e.target.blur()}
           disabled
           value={editFormData.total}
           onChange={(event) => handleBillingDataChange(event, row.id)}
@@ -120,6 +130,7 @@ export const EditableRow = ({
       >
         <EditActionCell
           handleCancel={handleCancel}
+          showButton={showButton}
           handleSave={() => handleSave(row.id, editFormData, setEditBillingId)}
         />
       </StyledTableCell>
@@ -127,28 +138,53 @@ export const EditableRow = ({
   );
 };
 
-export const ReadActionCell = ({ handleEdit, handleDeleteRow }) => {
+export const ReadActionCell = ({ handleEdit, handleDeleteRow, showButton }) => {
+  console.log("Action cell", showButton);
   return (
     <>
-      <div className="edit-icon" onClick={handleEdit} tabIndex={0}>
+      <div
+        className="edit-icon"
+        onClick={handleEdit}
+        disabled={!showButton}
+        tabIndex={0}
+        style={{ pointerEvents: showButton ? "" : "none" }}
+      >
         <EditIcon />
       </div>
 
-      <div className="delete-icon" onClick={handleDeleteRow} tabIndex={0}>
+      <div
+        className="delete-icon"
+        disabled={!showButton}
+        onClick={handleDeleteRow}
+        tabIndex={0}
+        style={{ pointerEvents: showButton ? "" : "none" }}
+      >
         <DeleteIcon />
       </div>
     </>
   );
 };
 
-export const EditActionCell = ({ handleSave, handleCancel }) => {
+export const EditActionCell = ({ handleSave, handleCancel, showButton }) => {
   return (
     <>
-      <div className="edit-icon" onClick={handleSave} tabIndex={0}>
+      <div
+        className="edit-icon"
+        disabled={!showButton}
+        onClick={handleSave}
+        tabIndex={0}
+        style={{ pointerEvents: showButton ? "" : "none" }}
+      >
         <SaveIcon />
       </div>
 
-      <div className="delete-icon" onClick={handleCancel} tabIndex={0}>
+      <div
+        className="delete-icon"
+        disabled={!showButton}
+        onClick={handleCancel}
+        tabIndex={0}
+        style={{ pointerEvents: showButton ? "" : "none" }}
+      >
         <CancelIcon />
       </div>
     </>
@@ -160,6 +196,7 @@ const BillingTable = ({
   addBillingDataRow,
   handleDeleteRowBillingData,
   handleSaveRowBillingData,
+  showButton,
 }) => {
   const [editBillingId, setEditBillingId] = useState(null);
   const [editFormData, setEditFormData] = useState({
@@ -176,8 +213,9 @@ const BillingTable = ({
     const fieldValue = event.target.value;
     newEditFormData[fieldName] = fieldValue;
     if (fieldName === "quantity" || fieldName === "price") {
-      newEditFormData["total"] =
-        newEditFormData["quantity"] * newEditFormData["price"];
+      newEditFormData["total"] = parseInt(
+        newEditFormData["quantity"] * newEditFormData["price"]
+      );
     }
     setEditFormData(newEditFormData);
   };
@@ -238,12 +276,14 @@ const BillingTable = ({
                       setEditBillingId={setEditBillingId}
                       handleBillingDataChange={handleBillingDataChange}
                       editFormData={editFormData}
+                      showButton={showButton}
                     />
                   ) : (
                     <ReadOnlyRow
                       row={row}
                       handleEdit={handleEdit}
                       handleDeleteRow={handleDeleteRowBillingData}
+                      showButton={showButton}
                     />
                   )}
                 </Fragment>

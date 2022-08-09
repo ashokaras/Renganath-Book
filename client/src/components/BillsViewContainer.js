@@ -50,6 +50,7 @@ const BillsViewContainer = forwardRef(({ report }, ref) => {
       const newBill = {
         ...bill,
         id: bill._id,
+        billStatus: bill.status,
         billDate: moment(bill.billDate).format("MM/DD/yyyy"),
         sysDate: moment(bill.createdAt).format("MM/DD/yyyy"),
         customerPhone: bill.phone,
@@ -67,6 +68,32 @@ const BillsViewContainer = forwardRef(({ report }, ref) => {
     });
 
   billTableData = billTableData ? billTableData : [];
+
+  console.log("Billing table Data", billTableData);
+
+  const totalCreditCurrent = billTableData
+    .map((bill) => bill.credit)
+    .reduce((prevValue, currValue) => prevValue + currValue, 0);
+
+  const totalDebitCurrent = billTableData
+    .map((bill) => bill.debit)
+    .reduce((prevValue, currValue) => prevValue + currValue, 0);
+
+  console.log("Billing table Data totalCreditCurrent", totalCreditCurrent);
+  console.log("Billing table Data totalDebitCurrent", totalDebitCurrent);
+
+  const currentTotal = totalDebitCurrent - totalCreditCurrent;
+
+  const closingBalance = currentTotal + openingBalance;
+
+  console.log("Billing table Data openingBalance", openingBalance);
+
+  const closingBalanceType =
+    report === "Customer Report" && openingBalanceType
+      ? closingBalance > 0
+        ? "debit"
+        : "credit"
+      : undefined;
 
   const customerReportBillTableColumns = [
     {
@@ -328,6 +355,30 @@ const BillsViewContainer = forwardRef(({ report }, ref) => {
     },
   ];
 
+  const statusCell = {
+    id: "billStatus",
+    numeric: false,
+    disablePadding: false,
+    label: "Status",
+  };
+
+  const createdBy = {
+    id: "billCreatedBy",
+    numeric: false,
+    disablePadding: false,
+    label: "Created By",
+  };
+
+  if (role === "admin") {
+    billTableColumns.splice(9, 0, statusCell);
+    reportBillTableColumns.splice(9, 0, statusCell);
+    billTableColumns.splice(10, 0, createdBy);
+    reportBillTableColumns.splice(10, 0, createdBy);
+  }
+
+  // If it is Reports page, then reportBillTableColumn
+  //If it is Customer Report Column, then it is customerReportBillTableCoumns
+  //If it is EditBills, then it is billTableColumns
   const headCells =
     report === "Report"
       ? reportBillTableColumns
@@ -359,6 +410,8 @@ const BillsViewContainer = forwardRef(({ report }, ref) => {
           openingBalance={openingBalance}
           openingBalanceType={openingBalanceType}
           report={report}
+          closingBalance={closingBalance}
+          closingBalanceType={closingBalanceType}
         />
       </Wrapper>
     </div>

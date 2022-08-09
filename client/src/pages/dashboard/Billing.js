@@ -52,11 +52,11 @@ const Billing = forwardRef((props, ref) => {
 
   const fieldValues = {
     billingComment: "",
-    billTotal: "",
-    gstCharge: "",
-    billDiscount: "",
-    billCash: "",
-    billBank: "",
+    billTotal: 0,
+    gstCharge: 0,
+    billDiscount: 0,
+    billCash: 0,
+    billBank: 0,
     voucher: "",
     billDate: moment().format("MM/DD/yyyy"),
     billingTableData: [],
@@ -65,6 +65,7 @@ const Billing = forwardRef((props, ref) => {
   };
 
   useEffect(() => {
+    console.log("isEditing", isEditing);
     if (!isEditing) {
       clearValues(fieldValues);
       getAllCustomers();
@@ -109,6 +110,7 @@ const Billing = forwardRef((props, ref) => {
       return;
     }
     createBill(phone, city);
+    clearValues(fieldValues);
   };
 
   const handleBillingFormSubmit = (e, phone, city) => {
@@ -155,23 +157,29 @@ const Billing = forwardRef((props, ref) => {
   const city = cityArray && cityArray[0] && cityArray[0]["city"];
 
   const calculateTotal = () => {
-    let tableTotal =
+    const tableTotal =
       billingTableData &&
       billingTableData
         .map((element) => {
           return parseFloat(element.total);
         })
         .reduce((partialSum, element) => partialSum + element, 0);
-    return (
+
+    return parseInt(
       tableTotal +
-      parseFloat(gstCharge) +
-      parseFloat(billDiscount) +
-      parseFloat(billBank) +
-      parseFloat(billCash)
+        (parseFloat(gstCharge) || 0) +
+        (parseFloat(billDiscount) || 0) +
+        (parseFloat(billBank) || 0) +
+        (parseFloat(billCash) || 0)
     );
   };
-
+  console.log("Annamalai", billBank);
   const grandTotal = calculateTotal();
+  console.log("Annamalai grandTotal", grandTotal);
+
+  const showButton = !isEditing ? true : role === "admin" ? true : false;
+  console.log("Show button is ", showButton);
+
   return (
     <div className="bill-print" ref={componentRef}>
       <div>
@@ -257,6 +265,8 @@ const Billing = forwardRef((props, ref) => {
                               handleDeleteRowBillingData
                             }
                             handleSaveRowBillingData={handleSaveRowBillingData}
+                            role={role}
+                            showButton={showButton}
                           />
                         </div>
                       </>
@@ -273,6 +283,7 @@ const Billing = forwardRef((props, ref) => {
                                 <input
                                   type="number"
                                   name="billBank"
+                                  onWheel={(e) => e.target.blur()}
                                   value={billBank || ""}
                                   onChange={handleBillingForm}
                                 />
@@ -284,6 +295,7 @@ const Billing = forwardRef((props, ref) => {
                                 <img src={rupeeicon} />
                                 <input
                                   type="number"
+                                  onWheel={(e) => e.target.blur()}
                                   name="billCash"
                                   value={billCash || ""}
                                   onChange={handleBillingForm}
@@ -302,6 +314,7 @@ const Billing = forwardRef((props, ref) => {
                                 <img src={rupeeicon} />
                                 <input
                                   type="number"
+                                  onWheel={(e) => e.target.blur()}
                                   name="billDiscount"
                                   value={billDiscount || ""}
                                   onChange={handleBillingForm}
@@ -314,6 +327,7 @@ const Billing = forwardRef((props, ref) => {
                                 <img src={rupeeicon} />
                                 <input
                                   type="number"
+                                  onWheel={(e) => e.target.blur()}
                                   name="gstCharge"
                                   value={gstCharge || ""}
                                   onChange={handleBillingForm}
@@ -328,8 +342,9 @@ const Billing = forwardRef((props, ref) => {
                             <img src={rupeeicon} />
                             <input
                               type="number"
+                              onWheel={(e) => e.target.blur()}
                               name="billTotal"
-                              value={grandTotal || 0}
+                              value={grandTotal || ""}
                               disabled
                             />
                           </div>
@@ -348,7 +363,7 @@ const Billing = forwardRef((props, ref) => {
                     </div>
 
                     {/* btn container */}
-                    {role === "admin" ? (
+                    {showButton ? (
                       <div className="btn-container noPrint">
                         <button
                           type="submit"

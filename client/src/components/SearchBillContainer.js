@@ -34,6 +34,9 @@ const SearchBillContainer = ({ report = "entry" }) => {
     setHandleSubmitSearchtrue,
     billingType,
     city,
+    billStatus,
+    billStatusOptions,
+    billCreatedBy,
   } = useAppContext();
 
   const role = user && user.role;
@@ -49,6 +52,8 @@ const SearchBillContainer = ({ report = "entry" }) => {
     toDate: moment().format("MM/DD/yyyy"),
     sysFromDate: moment().subtract(1, "month").format("MM/DD/yyyy"),
     sysToDate: moment().format("MM/DD/yyyy"),
+    billStatusOptions: ["All", "Active", "Deleted"],
+    billStatus: "Active",
   };
 
   useEffect(() => {
@@ -176,6 +181,24 @@ const SearchBillContainer = ({ report = "entry" }) => {
                   labelText="Voucher"
                   handleChange={handleSearch}
                 />
+                {role === "admin" ? (
+                  <>
+                    <FormRowSelect
+                      labelText="Entry Status"
+                      name="billStatus"
+                      value={billStatus}
+                      handleChange={handleSearch}
+                      list={billStatusOptions}
+                    />
+                    <FormRow
+                      type="text"
+                      name="billCreatedBy"
+                      value={billCreatedBy || ""}
+                      labelText="Created By Email"
+                      handleChange={handleSearch}
+                    />
+                  </>
+                ) : null}
               </>
             )}
 

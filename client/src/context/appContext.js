@@ -88,6 +88,9 @@ const initialState = {
   sort: "",
   sortOptions: ["Latest", "Oldest", "Ascending", "Descending"],
   billingOptions: ["", "Sales", "Purchase", "Receipt", "Payments"],
+  billStatusOptions: ["All", "Active", "Deleted"],
+  billStatus: "Active",
+  billCreatedBy: "",
   billingType: "",
   billingComment: "",
   billingTableData: [],
@@ -297,20 +300,26 @@ const AppProvider = ({ children }) => {
     billBank,
     billCash
   ) => {
-    let tableTotal = 0;
-    tableTotal =
+    const tableTotal =
       billingTableData &&
       billingTableData
         .map((element) => {
           return parseFloat(element.total);
         })
         .reduce((partialSum, element) => partialSum + element, 0);
-    return (
+    console.log("annamalai tableTotal", tableTotal);
+    console.log("annamalai gstCharge", gstCharge);
+
+    console.log("annamalai billDiscount", billDiscount);
+    console.log("annamalai billBank", billBank);
+    console.log("annamalai billCash", billCash);
+
+    return parseInt(
       tableTotal +
-      parseFloat(gstCharge) +
-      parseFloat(billDiscount) +
-      parseFloat(billBank) +
-      parseFloat(billCash)
+        (parseFloat(gstCharge) || 0) +
+        (parseFloat(billDiscount) || 0) +
+        (parseFloat(billBank) || 0) +
+        (parseFloat(billCash) || 0)
     );
   };
 
@@ -352,7 +361,6 @@ const AppProvider = ({ children }) => {
         billDiscount,
       });
       dispatch({ type: EDIT_BILL_SUCCESS });
-      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -401,7 +409,6 @@ const AppProvider = ({ children }) => {
         cash: billCash,
       });
       dispatch({ type: CREATE_BILL_SUCCESS });
-      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
@@ -462,14 +469,16 @@ const AppProvider = ({ children }) => {
   };
 
   const getAllBills = async () => {
-    const { sort, fromDate, toDate, sysFromDate, sysToDate } = state;
+    const { sort, fromDate, toDate, sysFromDate, sysToDate, user } = state;
+    const role = user && user.role;
 
-    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&sysFromDate=${sysFromDate}&sysToDate=${sysToDate}`;
+    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&sysFromDate=${sysFromDate}&sysToDate=${sysToDate}&role=${role}&status=Active`;
 
     dispatch({ type: GET_BILLS_BEGIN });
     try {
       const { data } = await authFetch(url);
       const { bills, totalBills } = data;
+
       dispatch({
         type: GET_BILLS_SUCCESS,
         payload: {
@@ -496,21 +505,26 @@ const AppProvider = ({ children }) => {
       sysFromDate,
       sysToDate,
       voucher,
+      user,
+      billStatus,
+      billCreatedBy,
     } = state;
     const customerName = billedCustomer && billedCustomer.label;
+    const role = user && user.role;
 
-    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&voucher=${voucher}`;
+    let url = `/billings?sort=${sort}&fromDate=${fromDate}&toDate=${toDate}&voucher=${voucher}&role=${role}&status=${billStatus}`;
     if (
       phone ||
       customerName ||
       city ||
       billingType ||
       sysFromDate ||
-      sysToDate
+      sysToDate ||
+      billCreatedBy
     ) {
       url =
         url +
-        `&billedCustomer=${customerName}&phone=${phone}&city=${city}&billingType=${billingType}&sysFromDate=${sysFromDate}&sysToDate=${sysToDate}`;
+        `&billedCustomer=${customerName}&phone=${phone}&city=${city}&billingType=${billingType}&sysFromDate=${sysFromDate}&sysToDate=${sysToDate}&createdBy=${billCreatedBy}`;
     }
     dispatch({ type: GET_BILLS_BEGIN });
     try {
@@ -551,7 +565,6 @@ const AppProvider = ({ children }) => {
         comment,
       });
       dispatch({ type: EDIT_CUSTOMER_SUCCESS });
-      dispatch({ type: CLEAR_CUSTOMER_FILTERS });
     } catch (error) {
       if (error.response.status === 401) return;
       dispatch({
