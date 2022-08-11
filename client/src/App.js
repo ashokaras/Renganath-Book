@@ -4,9 +4,11 @@ import {
   Profile,
   SharedLayout,
   AddCustomer,
+  Product,
   Billing,
   EditBill,
   EditCustomer,
+  EditProduct,
   CustomerReport,
   Report,
 } from "./pages/dashboard";
@@ -28,6 +30,8 @@ function App() {
           <Route path="edit-bill" element={<EditBill />} />
           <Route path="add-customer" element={<AddCustomer />} />
           <Route path="edit-customer" element={<EditCustomer />} />
+          <Route path="add-product" element={<Product />} />
+          <Route path="edit-product" element={<EditProduct />} />
           <Route path="profile" element={<Profile />} />
           <Route path="report" element={<Report />} />
           <Route path="customerReport" element={<CustomerReport />} />

@@ -23,6 +23,8 @@ import authRouter from "./routes/authRoutes.js";
 import clientRouter from "./routes/clientRoutes.js";
 import jobsRouter from "./routes/jobsRoutes.js";
 import customerRouter from "./routes/customerRoutes.js";
+import productRouter from "./routes/productRoutes.js";
+
 import billingRouter from "./routes/billingRoutes.js";
 
 // middleware
@@ -62,6 +64,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/client", clientRouter);
 app.use("/api/v1/jobs", authenticateUser, jobsRouter);
 app.use("/api/v1/customers", authenticateUser, customerRouter);
+app.use("/api/v1/products", authenticateUser, productRouter);
 app.use("/api/v1/billings", authenticateUser, billingRouter);
 
 // only when ready to deploy

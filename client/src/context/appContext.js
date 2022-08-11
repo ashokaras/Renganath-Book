@@ -50,6 +50,19 @@ import {
   HANDLE_SUBMIT_SEARCH_FINISHED,
   DELETE_BILL_SUCCESS,
   CLEAR_VALUES,
+  SET_EDIT_PRODUCT,
+  DELETE_PRODUCT_BEGIN,
+  DELETE_PRODUCT_ERROR,
+  DELETE_PRODUCT_SUCCESS,
+  GET_PRODUCTS_BEGIN,
+  GET_PRODUCTS_SUCCESS,
+  CREATE_PRODUCT_BEGIN,
+  CREATE_PRODUCT_SUCCESS,
+  CLEAR_PRODUCT_FILTERS,
+  CREATE_PRODUCT_ERROR,
+  EDIT_PRODUCT_BEGIN,
+  EDIT_PRODUCT_SUCCESS,
+  EDIT_PRODUCT_ERROR,
 } from "./actions";
 
 const token = localStorage.getItem("token");
@@ -76,6 +89,7 @@ const initialState = {
   status: "pending",
   jobs: [],
   customers: [],
+  products: [],
   totalJobs: 0,
   totalCustomers: 0,
   numOfPages: 1,
@@ -112,6 +126,8 @@ const initialState = {
   voucher: "",
   openingBalanceType: undefined,
   openingBalance: undefined,
+  productName: "",
+  unitsOfMeasure: "",
 };
 
 const AppContext = React.createContext();
@@ -293,6 +309,27 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const createProduct = async (fieldValues) => {
+    dispatch({ type: CREATE_PRODUCT_BEGIN });
+    try {
+      const { unitsOfMeasure, productName } = state;
+      await authFetch.post("/products", {
+        productName,
+        unitsOfMeasure,
+      });
+      dispatch({ type: CREATE_PRODUCT_SUCCESS });
+      clearValues(fieldValues);
+    } catch (error) {
+      console.log(error.response);
+      if (error.response.status === 401) return;
+      dispatch({
+        type: CREATE_PRODUCT_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
   const calculateTotal = (
     billingTableData,
     gstCharge,
@@ -441,6 +478,28 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const getAllProducts = async () => {
+    console.log("get All products");
+    const { sort, page } = state;
+
+    const url = `/products?sort=${sort}&page=${page}&all=true`;
+
+    dispatch({ type: GET_PRODUCTS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { products } = data;
+      dispatch({
+        type: GET_PRODUCTS_SUCCESS,
+        payload: {
+          products,
+        },
+      });
+    } catch (error) {
+      logoutUser();
+    }
+    clearAlert();
+  };
+
   const getCustomers = async () => {
     console.log("get customers");
     const { name, phone, city, sort, page } = state;
@@ -458,6 +517,34 @@ const AppProvider = ({ children }) => {
         payload: {
           customers,
           totalCustomers,
+          numOfPages,
+        },
+      });
+      dispatch({ type: HANDLE_SUBMIT_SEARCH_FINISHED });
+    } catch (error) {
+      logoutUser();
+    }
+    clearAlert();
+  };
+
+  const getProducts = async () => {
+    console.log("get Products");
+    const { productName, unitsOfMeasure, sort, page } = state;
+
+    let url = `/products?sort=${sort}&page=${page}`;
+    if (productName || unitsOfMeasure) {
+      url =
+        url + `&productName=${productName}&unitsOfMeasure=${unitsOfMeasure}`;
+    }
+    dispatch({ type: GET_PRODUCTS_BEGIN });
+    try {
+      const { data } = await authFetch(url);
+      const { products, totalProducts, numOfPages } = data;
+      dispatch({
+        type: GET_PRODUCTS_SUCCESS,
+        payload: {
+          products,
+          totalProducts,
           numOfPages,
         },
       });
@@ -549,6 +636,9 @@ const AppProvider = ({ children }) => {
   const setEditCustomer = (id) => {
     dispatch({ type: SET_EDIT_CUSTOMER, payload: { id } });
   };
+  const setEditProduct = (id) => {
+    dispatch({ type: SET_EDIT_PRODUCT, payload: { id } });
+  };
   const setEditBill = (id) => {
     dispatch({ type: SET_EDIT_BILL, payload: { id } });
   };
@@ -575,6 +665,26 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const editProduct = async () => {
+    dispatch({ type: EDIT_PRODUCT_BEGIN });
+
+    try {
+      const { productName, unitsOfMeasure } = state;
+      await authFetch.patch(`/products/${state.editJobId}`, {
+        productName,
+        unitsOfMeasure,
+      });
+      dispatch({ type: EDIT_PRODUCT_SUCCESS });
+    } catch (error) {
+      if (error.response.status === 401) return;
+      dispatch({
+        type: EDIT_PRODUCT_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+    clearAlert();
+  };
+
   const deleteCustomer = async (customerId, name) => {
     dispatch({ type: DELETE_CUSTOMER_BEGIN });
     try {
@@ -585,6 +695,21 @@ const AppProvider = ({ children }) => {
       console.log("Error is", error.response.data.msg);
       dispatch({
         type: DELETE_CUSTOMER_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+  };
+
+  const deleteProduct = async (productId, name) => {
+    dispatch({ type: DELETE_PRODUCT_BEGIN });
+    try {
+      await authFetch.delete(`/products/${productId}/?name=${name}`);
+      dispatch({ type: DELETE_PRODUCT_SUCCESS });
+      getProducts();
+    } catch (error) {
+      console.log("Error is", error.response.data.msg);
+      dispatch({
+        type: DELETE_PRODUCT_ERROR,
         payload: { msg: error.response.data.msg },
       });
     }
@@ -674,6 +799,12 @@ const AppProvider = ({ children }) => {
         getAllBills,
         finishEditing,
         clearValues,
+        setEditProduct,
+        getProducts,
+        deleteProduct,
+        getAllProducts,
+        createProduct,
+        editProduct,
       }}
     >
       {children}

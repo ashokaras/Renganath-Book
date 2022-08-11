@@ -43,6 +43,18 @@ import {
   HANDLE_SUBMIT_SEARCH_FINISHED,
   DELETE_BILL_SUCCESS,
   CLEAR_VALUES,
+  SET_EDIT_PRODUCT,
+  DELETE_PRODUCT_BEGIN,
+  DELETE_PRODUCT_ERROR,
+  DELETE_PRODUCT_SUCCESS,
+  GET_PRODUCTS_BEGIN,
+  GET_PRODUCTS_SUCCESS,
+  CREATE_PRODUCT_BEGIN,
+  CREATE_PRODUCT_SUCCESS,
+  CREATE_PRODUCT_ERROR,
+  EDIT_PRODUCT_BEGIN,
+  EDIT_PRODUCT_SUCCESS,
+  EDIT_PRODUCT_ERROR,
 } from "./actions";
 import moment from "moment";
 import { initialState } from "./appContext";
@@ -118,6 +130,17 @@ const reducer = (state, action) => {
     };
   }
   if (action.type === DELETE_CUSTOMER_ERROR) {
+    console.log("Actions is ", action);
+
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
+  if (action.type === DELETE_PRODUCT_ERROR) {
     console.log("Actions is ", action);
 
     return {
@@ -217,7 +240,10 @@ const reducer = (state, action) => {
       billingTableData: [...action.payload.newBillingTableData],
     };
   }
-  if (action.type === CREATE_CUSTOMER_BEGIN) {
+  if (
+    action.type === CREATE_CUSTOMER_BEGIN ||
+    action.type === CREATE_PRODUCT_BEGIN
+  ) {
     console.log("Actions is ", action);
 
     return { ...state, isLoading: true };
@@ -241,6 +267,18 @@ const reducer = (state, action) => {
     };
   }
 
+  if (action.type === CREATE_PRODUCT_SUCCESS) {
+    console.log("Actions is ", action);
+
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "success",
+      alertText: "New Product Created!",
+    };
+  }
+
   if (action.type === CREATE_BILL_SUCCESS) {
     console.log("Actions is ", action);
 
@@ -253,7 +291,10 @@ const reducer = (state, action) => {
     };
   }
 
-  if (action.type === CREATE_CUSTOMER_ERROR) {
+  if (
+    action.type === CREATE_CUSTOMER_ERROR ||
+    action.type === CREATE_PRODUCT_ERROR
+  ) {
     console.log("Actions is ", action);
 
     return {
@@ -282,6 +323,11 @@ const reducer = (state, action) => {
 
     return { ...state, isLoading: true };
   }
+  if (action.type === GET_PRODUCTS_BEGIN) {
+    console.log("Actions is ", action);
+
+    return { ...state, isLoading: true };
+  }
   if (action.type === GET_BILLS_BEGIN) {
     console.log("Actions is ", action);
 
@@ -296,6 +342,17 @@ const reducer = (state, action) => {
       isLoading: false,
       customers: action.payload.customers,
       totalCustomers: action.payload.totalCustomers,
+      numOfPages: action.payload.numOfPages,
+    };
+  }
+  if (action.type === GET_PRODUCTS_SUCCESS) {
+    console.log("Actions is ", action);
+
+    return {
+      ...state,
+      isLoading: false,
+      products: action.payload.products,
+      totalProducts: action.payload.totalProducts,
       numOfPages: action.payload.numOfPages,
     };
   }
@@ -326,6 +383,22 @@ const reducer = (state, action) => {
       phone,
       city,
       comment,
+    };
+  }
+
+  if (action.type === SET_EDIT_PRODUCT) {
+    console.log("Actions is ", action);
+
+    const product = state.products.find(
+      (product) => product._id === action.payload.id
+    );
+    const { _id, productName, unitsOfMeasure } = product;
+    return {
+      ...state,
+      isEditing: true,
+      editJobId: _id,
+      productName,
+      unitsOfMeasure,
     };
   }
 
@@ -380,13 +453,21 @@ const reducer = (state, action) => {
 
     return { ...state, isLoading: true };
   }
+  if (action.type === DELETE_PRODUCT_BEGIN) {
+    console.log("Actions is ", action);
+
+    return { ...state, isLoading: true };
+  }
   if (action.type === DELETE_BILL_BEGIN) {
     console.log("Actions is ", action);
 
     return { ...state, isLoading: true };
   }
 
-  if (action.type === EDIT_CUSTOMER_BEGIN) {
+  if (
+    action.type === EDIT_CUSTOMER_BEGIN ||
+    action.type === EDIT_PRODUCT_BEGIN
+  ) {
     console.log("Actions is ", action);
 
     return {
@@ -411,6 +492,17 @@ const reducer = (state, action) => {
       showAlert: true,
       alertType: "success",
       alertText: "Customer Updated!",
+    };
+  }
+  if (action.type === EDIT_PRODUCT_SUCCESS) {
+    console.log("Actions is ", action);
+
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "success",
+      alertText: "Product Updated!",
     };
   }
 
@@ -438,6 +530,18 @@ const reducer = (state, action) => {
     };
   }
 
+  if (action.type === DELETE_PRODUCT_SUCCESS) {
+    console.log("Actions is ", action);
+
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "success",
+      alertText: "Product deleted!",
+    };
+  }
+
   if (action.type === EDIT_BILL_SUCCESS) {
     console.log("Actions is ", action);
 
@@ -449,7 +553,10 @@ const reducer = (state, action) => {
       alertText: "Bill Updated!",
     };
   }
-  if (action.type === EDIT_CUSTOMER_ERROR) {
+  if (
+    action.type === EDIT_CUSTOMER_ERROR ||
+    action.type === EDIT_PRODUCT_ERROR
+  ) {
     console.log("Actions is ", action);
 
     return {

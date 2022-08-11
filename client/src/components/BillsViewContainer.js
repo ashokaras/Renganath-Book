@@ -84,7 +84,7 @@ const BillsViewContainer = forwardRef(({ report }, ref) => {
 
   const currentTotal = totalDebitCurrent - totalCreditCurrent;
 
-  const closingBalance = currentTotal + openingBalance;
+  const closingBalance = Math.abs(currentTotal + openingBalance);
 
   console.log("Billing table Data openingBalance", openingBalance);
 
@@ -95,6 +95,7 @@ const BillsViewContainer = forwardRef(({ report }, ref) => {
         : "credit"
       : undefined;
 
+  console.log("closingBalanceType", closingBalanceType);
   const customerReportBillTableColumns = [
     {
       id: "billDate",

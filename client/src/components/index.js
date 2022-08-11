@@ -20,6 +20,9 @@ import ReadOnyTable from "./ReadOnyTable";
 import ReportViewContainer from "./ReportViewContainer";
 import SearchReportContainer from "./SearchReportContainer";
 import ReportTable from "./ReportTable";
+import PrintTable from "./PrintTable";
+import SearchProductsContainer from "./SearchProductsContainer";
+import ProductsContainer from "./ProductsContainer";
 export {
   Logo,
   SearchCustomerContainer,
@@ -43,4 +46,7 @@ export {
   SearchReportContainer,
   ReportTable,
   BillsViewContainer,
+  PrintTable,
+  SearchProductsContainer,
+  ProductsContainer,
 };

@@ -225,7 +225,7 @@ const EnhancedTableToolbar = ({
           >
             Opening Balance :
             <span style={{ color: balanceStyle, marginLeft: "2px" }}>
-              {openingBalance}
+              {Math.abs(openingBalance)}
             </span>
             <span style={{ marginLeft: "5px" }}>
               {openingBalanceType === "debit" ? " DR" : " CR"}
@@ -420,7 +420,7 @@ const ReadOnlyTable = ({
             {report === "Customer Report" && closingBalanceType ? (
               <Typography
                 sx={{
-                  marginRight: "80px",
+                  marginRight: "90px",
                   whiteSpace: "nowrap",
                   display: "flex",
                   alignItems: "center",
